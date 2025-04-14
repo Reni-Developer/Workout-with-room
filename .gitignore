@@ -1,0 +1,18 @@
+# Android build
+/build/
+/app/build/
+
+# IntelliJ/Android Studio
+*.iml
+.idea/
+
+# Kotlin/Java
+*.class
+*.dex
+
+# Gradle
+.gradle/
+*.log
+
+# Local configuration
+local.properties
