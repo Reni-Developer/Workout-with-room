@@ -5,7 +5,7 @@ Desarrollar una pequeña aplicación Android en Kotlin que maneje entrenamientos
 Un Entrenamiento tendrá un nombre, una duración en minutos y una lista de Sets, cada uno con su lista de Ejercicios.
 
 ## Requerimientos:
-###1. Modelado de datos con Room
+### 1. Modelado de datos con Room
 
 Crear las siguientes entidades con relaciones:
 
@@ -26,7 +26,7 @@ nombre (String)
 repeticiones (Int)
 pesoKg (Float, opcional)
 
-###2. Implementar DAOs
+### 2. Implementar DAOs
 
 Crear los DAO necesarios para:
 
