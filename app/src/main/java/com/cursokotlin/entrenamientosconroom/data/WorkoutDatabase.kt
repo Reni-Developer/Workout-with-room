@@ -18,7 +18,9 @@ abstract class WorkoutDatabase : RoomDatabase() {
 
 
     companion object {
-        @Volatile
+        @Volatile//para indicar que: Cualquier lectura o escritura de esa variable se
+        // hace directamente en la memoria principal y no se guarda en caché por los hilos.
+        // Esto garantiza que todos los hilos vean el valor más actualizado de la variable.
         private var INSTANCE: WorkoutDatabase? = null
 
         fun getDatabase(context: Context): WorkoutDatabase {
