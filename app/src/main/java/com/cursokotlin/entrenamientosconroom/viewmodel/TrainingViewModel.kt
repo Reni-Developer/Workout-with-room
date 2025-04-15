@@ -13,7 +13,9 @@ import com.cursokotlin.entrenamientosconroom.data.WorkoutSet
 import com.cursokotlin.entrenamientosconroom.data.WorkoutWithSetsAndExercises
 import kotlinx.coroutines.launch
 
-
+//Una de las formas más comunes para pasarle dependencias
+// al ViewModel (como DAOs o repositorios) es a través de una
+// clase que extienda de Application. Si no se implementa Dagger Hilt.
 class TrainingViewModel(application: Application) : AndroidViewModel(application) {
 
 
