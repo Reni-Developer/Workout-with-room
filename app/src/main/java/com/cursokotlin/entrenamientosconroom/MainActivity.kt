@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.cursokotlin.entrenamientosconroom.ui.theme.EntrenamientosConRoomTheme
-import com.cursokotlin.entrenamientosconroom.viewmodel.TrainingScreen
+import com.cursokotlin.entrenamientosconroom.ui.TrainingScreen
 import com.cursokotlin.entrenamientosconroom.viewmodel.TrainingViewModel
 
 class MainActivity : ComponentActivity() {

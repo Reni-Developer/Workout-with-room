@@ -1,4 +1,4 @@
-package com.cursokotlin.entrenamientosconroom.data
+package com.cursokotlin.entrenamientosconroom.data.BD
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

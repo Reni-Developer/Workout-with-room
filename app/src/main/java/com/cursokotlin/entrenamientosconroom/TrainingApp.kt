@@ -1,4 +1,4 @@
-package com.cursokotlin.entrenamientosconroom.viewmodel
+package com.cursokotlin.entrenamientosconroom
 
 import android.app.Application
 

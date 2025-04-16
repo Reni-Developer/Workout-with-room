@@ -1,4 +1,4 @@
-package com.cursokotlin.entrenamientosconroom.data.dominio
+package com.cursokotlin.entrenamientosconroom.dominio
 
 class TainingUseCase {
 }

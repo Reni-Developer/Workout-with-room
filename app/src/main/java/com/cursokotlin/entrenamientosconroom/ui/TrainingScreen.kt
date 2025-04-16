@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package com.cursokotlin.entrenamientosconroom.viewmodel
+package com.cursokotlin.entrenamientosconroom.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cursokotlin.entrenamientosconroom.viewmodel.TrainingViewModel
 
 @Composable
 fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingViewModel) {
