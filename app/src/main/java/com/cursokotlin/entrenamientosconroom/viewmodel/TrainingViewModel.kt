@@ -5,11 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.cursokotlin.entrenamientosconroom.data.Exercise
-import com.cursokotlin.entrenamientosconroom.data.Workout
-import com.cursokotlin.entrenamientosconroom.data.WorkoutDatabase.Companion.getDatabase
-import com.cursokotlin.entrenamientosconroom.data.WorkoutSet
-import com.cursokotlin.entrenamientosconroom.data.WorkoutWithSetsAndExercises
+import com.cursokotlin.entrenamientosconroom.data.BD.Exercise
+import com.cursokotlin.entrenamientosconroom.data.BD.Workout
+import com.cursokotlin.entrenamientosconroom.data.BD.WorkoutDatabase.Companion.getDatabase
+import com.cursokotlin.entrenamientosconroom.data.BD.WorkoutSet
+import com.cursokotlin.entrenamientosconroom.data.BD.WorkoutWithSetsAndExercises
 import kotlinx.coroutines.launch
 
 //Una de las formas más comunes para pasarle dependencias

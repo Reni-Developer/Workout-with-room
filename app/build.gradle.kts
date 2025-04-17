@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
+
 }
 
 android {
@@ -60,6 +62,15 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation (libs.androidx.lifecycle.viewmodel.compose)
+
+    //Retrofit 2 y Gson
+    implementation (libs.converter.gson)
+    implementation (libs.retrofit)
+
+    //Dagger Hilt (DI)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
