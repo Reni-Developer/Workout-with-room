@@ -1,4 +1,6 @@
 package com.cursokotlin.entrenamientosconroom.data.networkAPI
 
-class TrainingRepository {
+import javax.inject.Inject
+
+class TrainingRepository @Inject constructor(private val trainingService: TrainingService)  {
 }
