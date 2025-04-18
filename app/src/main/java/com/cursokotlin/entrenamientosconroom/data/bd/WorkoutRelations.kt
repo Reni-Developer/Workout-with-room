@@ -5,20 +5,20 @@ import androidx.room.Relation
 
 
 data class WorkoutWithSetsAndExercises(
-    @Embedded val workout: Workout,
+    @Embedded var workout: Workout,
     @Relation(
-        parentColumn = "workoutid",
-        entityColumn = "workoutid",
+        parentColumn = "workoutId",
+        entityColumn = "workoutId",
         entity = WorkoutSet::class
     )
     val sets: List<SetWithExercise>
 )
 
 data class SetWithExercise(
-    @Embedded val set: WorkoutSet,
+    @Embedded var set: WorkoutSet,
     @Relation(
-        parentColumn = "workoutsetid",
-        entityColumn = "workoutsetid",
+        parentColumn = "workoutSetId",
+        entityColumn = "workoutSetId",
         entity = Exercise::class
     )
     val exercises: List<Exercise>

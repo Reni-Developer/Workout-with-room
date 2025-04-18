@@ -24,7 +24,7 @@ data class Workout(
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["workoutid"])]
+    indices = [Index(value = ["workoutId"])]
 )
 data class WorkoutSet(
     @PrimaryKey(autoGenerate = true)
@@ -44,7 +44,7 @@ data class WorkoutSet(
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["workoutsetid"])]
+    indices = [Index(value = ["workoutSetId"])]
 )
 data class Exercise(
     @PrimaryKey(autoGenerate = true)

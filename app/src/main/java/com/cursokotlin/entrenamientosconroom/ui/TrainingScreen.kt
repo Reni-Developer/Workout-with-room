@@ -30,33 +30,42 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cursokotlin.entrenamientosconroom.data.networkAPI.UserDataModel
 import com.cursokotlin.entrenamientosconroom.viewmodel.TrainingViewModel
 
 @Composable
 fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingViewModel) {
 
     val workoutWithSetsAndExercises by trainingViewModel.workoutWithSets.observeAsState(emptyList())
-    val week = arrayOf("Lunes", "Martes", "Miercoles", "Jueves", "Viernes")
+    val sex = 1
+    val age = 25
+    val target = 2
+    val muscles = listOf(1, 3)
+    val difficulty = 2
+    val time = 30
+    val injure = "ninguna"
+    val language = 1
+    val userData = UserDataModel(
+        sex = sex,
+        age = age,
+        target = target,
+        muscles = muscles,
+        difficulty = difficulty,
+        time = time,
+        injuries = injure,
+        language = language
+    )
 
     Column(modifier = modifier.fillMaxSize()) {
-        LazyRow(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-        ) {
-            itemsIndexed(week) { index, day ->
-                val id = index + 1
-                Button(modifier = modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp),
-                    shape = ButtonDefaults.elevatedShape,
-                    colors = ButtonDefaults.buttonColors(Color(0xF32C4A9F)),
-                    onClick = { trainingViewModel.changeWorkoutId(id) })
-                {
-                    Text(text = day)
-                }
-            }
+        Button(modifier = modifier
+            .padding(horizontal = 8.dp),
+            shape = ButtonDefaults.elevatedShape,
+            colors = ButtonDefaults.buttonColors(Color(0xF32C4A9F)),
+            onClick = { trainingViewModel.loadWorkout(userData) })
+        {
+            Text(text = "Star Training")
         }
+
         Card(
             Modifier
                 .fillMaxSize()
@@ -67,19 +76,19 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
             LazyColumn(contentPadding = PaddingValues(8.dp)) {
                 items(
                     workoutWithSetsAndExercises,
-                    key = { it.workout.workoutid }) { workoutWithSets ->
+                    key = { it.workout.workoutId }) { workoutWithSets ->
                     Text(
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,
-                        text = "Entrenamiento: ${workoutWithSets.workout.entrenamiento} "
+                        text = "Entrenamiento: ${workoutWithSets.workout.name} "
                     )
                     Text(
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,
                         textAlign = TextAlign.End,
-                        text = "(${workoutWithSets.workout.duracion} min)"
+                        text = "${workoutWithSets.workout.coach_explanation} "
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -94,21 +103,21 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
 
                     workoutWithSets.sets.forEach { setWithExercise ->
                         Text(
-                            color = Color(0xFF282828),
+                            color = Color.Gray,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            text = "Set${setWithExercise.set.orden}:"
+                            text = "Set No.${ setWithExercise.set.rounds }"
                         )
                         Spacer(modifier = Modifier.size(8.dp))
                         Text(
-                            color = Color.Gray,
+                            color = Color(0xFF282828),
                             fontWeight = FontWeight.Bold,
-                            text = setWithExercise.set.workoutset
+                            fontSize = 20.sp,
+                            text = "Set${setWithExercise.set.order_set_id}:"
                         )
                         setWithExercise.exercises.forEach { exercise ->
                             Text(
                                 color = Color.White,
-                                text = "Exercise: ${exercise.exercise}, -> ${exercise.reps} Reps, (${exercise.weight.toInt()} lb)"
+                                text = "${exercise.order_exercise_id} Exercise: ${exercise.name}, -> ${exercise.reps} Reps ), movement ${exercise.movement_id}, muscle ${exercise.muscle_id}"
                             )
                         }
                         Spacer(modifier = Modifier.height(16.dp))
@@ -118,6 +127,7 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
         }
     }
 }
+
 
 
 
