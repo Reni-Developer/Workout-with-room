@@ -1,4 +1,4 @@
-package com.cursokotlin.entrenamientosconroom.data.BD
+package com.cursokotlin.entrenamientosconroom.data.bd
 
 import android.content.Context
 import androidx.room.Database

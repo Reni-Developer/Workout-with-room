@@ -1,4 +1,4 @@
-package com.cursokotlin.entrenamientosconroom.data.BD
+package com.cursokotlin.entrenamientosconroom.data.bd
 
 import androidx.room.Dao
 import androidx.room.Delete

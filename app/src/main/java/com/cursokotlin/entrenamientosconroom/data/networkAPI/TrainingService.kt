@@ -1,16 +1,13 @@
 package com.cursokotlin.entrenamientosconroom.data.networkAPI
 
 import android.util.Log
-import com.cursokotlin.entrenamientosconroom.data.BD.Exercise
-import com.cursokotlin.entrenamientosconroom.data.BD.ExerciseDao
-import com.cursokotlin.entrenamientosconroom.data.BD.SetDao
-import com.cursokotlin.entrenamientosconroom.data.BD.Workout
-import com.cursokotlin.entrenamientosconroom.data.BD.WorkoutDao
-import com.cursokotlin.entrenamientosconroom.data.BD.WorkoutSet
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.cursokotlin.entrenamientosconroom.data.bd.Exercise
+import com.cursokotlin.entrenamientosconroom.data.bd.ExerciseDao
+import com.cursokotlin.entrenamientosconroom.data.bd.SetDao
+import com.cursokotlin.entrenamientosconroom.data.bd.Workout
+import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutDao
+import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutSet
 import javax.inject.Inject
-import kotlin.math.log
 
 
 class TrainingService @Inject constructor(
@@ -19,12 +16,12 @@ class TrainingService @Inject constructor(
     private val setDao: SetDao,
     private val exerciseDao: ExerciseDao
 ) {
-    suspend fun fetchAndSaveTraining() {
+    suspend fun fetchAndSaveTraining(userData: UserDataModel) {
         try {
-            val response = trainingClient.doWorkout()
+            val response = trainingClient.doWorkout(userData = userData)
             if (response.isSuccessful) {
-                response.body()?.let { trainingResponse ->
-                    saveToLocalDatabase(trainingResponse)
+                response.body()?.let { workoutModel ->
+                    saveToLocalDatabase(workoutModel)
                 }
             } else {
                 Log.e("TrainingService", "Error: ${response.code()}")
@@ -34,18 +31,26 @@ class TrainingService @Inject constructor(
         }
     }
 
-    private fun saveToLocalDatabase(trainingResponse: TrainingResponse) {
-// 🔁 Aquí se adapta el TrainingResponse a las entidades locales.
-        val workout = Workout(entrenamiento = "Entrenamiento generado", duracion = trainingResponse.time)
-        val workoutId = workoutDao.insert(workout)
+    suspend fun saveToLocalDatabase(workoutModel: WorkoutModel) {
+// 🔁 Aquí se guarda el modelo WorkoutModel en la base de datos local.
+        val workoutId = workoutDao.insert(Workout(name = workoutModel.name, coach_explanation = workoutModel.coach_explanation))
 
-        // ⚙️ En este ejemplo simple, creamos un solo set con ejercicios ficticios por músculo.
-        val set = WorkoutSet(workoutid = workoutId, workoutset = "Serie generada", orden = 1)
-        val setId = setDao.insert(set)
+        workoutModel.sets.forEach { set ->
+            val setId = setDao.insert(WorkoutSet(workoutId = workoutId, rounds = set.rounds, order_set_id = set.order_set_id))
 
-        trainingResponse.muscles.forEachIndexed { index, muscleId ->
-            val exercise = Exercise(workoutsetid = setId, exercise = "Ejercicio para músculo $muscleId", reps = 10 + index, weight = 20f + index * 2)
-            exerciseDao.insert(exercise)
+            set.exercises.forEach { ex ->
+                exerciseDao.insert(Exercise(
+                        workoutSetId = setId,
+                        order_exercise_id = ex.order_exercise_id,
+                        name = ex.name,
+                        language_name = ex.language_name,
+                        reps = ex.reps,
+                        movement_id = ex.movement_id,
+                        muscle_id = ex.muscle_id,
+                        url = ex.url
+                    )
+                )
+            }
         }
     }
 }

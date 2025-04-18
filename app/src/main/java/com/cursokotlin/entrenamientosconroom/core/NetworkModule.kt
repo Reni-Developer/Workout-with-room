@@ -2,7 +2,7 @@ package com.cursokotlin.entrenamientosconroom.core
 
 import android.content.Context
 import androidx.room.Room
-import com.cursokotlin.entrenamientosconroom.data.BD.WorkoutDatabase
+import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutDatabase
 import com.cursokotlin.entrenamientosconroom.data.networkAPI.TrainingClient
 import dagger.Module
 import dagger.Provides
@@ -15,9 +15,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class) //Para que viva mientras la app viva
-
 class NetworkModule {
-
     @Singleton
     @Provides
     fun provideRetrofit(): Retrofit {
@@ -26,7 +24,6 @@ class NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())//Convierte el json en clases de datos de Kotlin
             .build()
     }
-
     @Singleton
     @Provides
     fun provideTrainingClient(retrofit: Retrofit): TrainingClient {
@@ -36,7 +33,6 @@ class NetworkModule {
     @Module
     @InstallIn(SingletonComponent::class)
     object DatabaseModule {
-
         @Provides
         @Singleton
         fun provideDatabase(@ApplicationContext context: Context): WorkoutDatabase {

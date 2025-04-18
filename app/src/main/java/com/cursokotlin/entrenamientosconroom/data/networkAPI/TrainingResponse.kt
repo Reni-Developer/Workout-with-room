@@ -1,14 +1,23 @@
 package com.cursokotlin.entrenamientosconroom.data.networkAPI
 
-import com.google.gson.annotations.SerializedName
+data class ExerciseModel(
+    val order_exercise_id: Int,
+    val name: String,
+    val language_name: String,
+    val reps: String,
+    val movement_id: Int,
+    val muscle_id: Int,
+    val url: String
+)
 
-data class TrainingResponse(
-    @SerializedName("sex") val sex: Int,
-    @SerializedName("age") val age: Int,
-    @SerializedName("target")val target: Int,
-    @SerializedName("muscles")val muscles: List<Int>,
-    @SerializedName("difficulty")val difficulty: Int,
-    @SerializedName("time")val time: Int,
-    @SerializedName("injuries")val injuries: String,
-    @SerializedName("language")val language: Int
+data class SetModel(
+    val exercises: List<ExerciseModel>,
+    val rounds: Int,
+    val order_set_id: Int
+)
+
+data class WorkoutModel(
+    val name: String,
+    val coach_explanation: String,
+    val sets: List<SetModel>
 )
