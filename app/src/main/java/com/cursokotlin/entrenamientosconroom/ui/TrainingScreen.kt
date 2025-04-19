@@ -44,7 +44,7 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
     val workoutWithSetsAndExercises by trainingViewModel.workoutWithSets.observeAsState(emptyList())
     val age by trainingViewModel.age.observeAsState(initial = 25)
     val time by trainingViewModel.time.observeAsState(initial = 25)
-    val injure by trainingViewModel.injure.observeAsState("ninguna")
+    val injuries by trainingViewModel.injure.observeAsState("ninguna")
 
     var muscles by remember { mutableStateOf(listOf(50, 31)) }
     var sex by remember { mutableIntStateOf(0) }
@@ -60,26 +60,20 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
             muscles = muscles,
             difficulty = difficulty,
             time = time,
-            injuries = injure,
+            injuries = injuries,
             language = language
         )
     }
-    var lastUserData by remember { mutableStateOf<UserDataModel?>(null) }
 
     Column(modifier = modifier.fillMaxSize()) {
 
-        ConfigUserWorkout(modifier, trainingViewModel, age, time, injure)
+        ConfigUserWorkout(Modifier, trainingViewModel, age, time, injuries)
 
-        Button(modifier = modifier
+        Button(modifier = Modifier
             .padding(horizontal = 8.dp),
             shape = ButtonDefaults.elevatedShape,
             colors = ButtonDefaults.buttonColors(Color(0xF32C4A9F)),
-            onClick = {
-                if (lastUserData != currentUserData) {
-                    trainingViewModel.loadWorkout(currentUserData)
-                    lastUserData = currentUserData
-                }
-            }
+            onClick = { trainingViewModel.loadWorkout(currentUserData) }
         )
         {
             Text(text = "Update Training")
@@ -88,7 +82,7 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
         Card(
             Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 8.dp)
                 .align(Alignment.CenterHorizontally),
             colors = CardDefaults.cardColors(Color(0xF32C4A9F))
         ) {
@@ -156,21 +150,20 @@ fun ConfigUserWorkout(
     trainingViewModel: TrainingViewModel,
     currentAge: Int, currentTime: Int, currentInjure: String) {
 
-    var ageInt by remember { mutableIntStateOf(25) }
+    var ageInt by remember { mutableIntStateOf(0) }
     var ageString by remember { mutableStateOf("") }
-    var timeInt by remember { mutableIntStateOf(30) }
+    var timeInt by remember { mutableIntStateOf(0) }
     var timeString by remember { mutableStateOf("") }
     var injure by remember { mutableStateOf("ninguna") }
 
-    Card(modifier = modifier.fillMaxWidth()) {
+    Card(modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
         TextField(
             value = ageString,
             onValueChange = {
                 ageString = it
-                it.toIntOrNull()?.let { safeAge ->
-                    ageInt = safeAge
-                }
-            },
+                if (ageString != "" && ageString.toIntOrNull() != null)
+                    ageInt = ageString.toInt()
+                },
             label = { Text(text = "Your Age") },
             singleLine = true,
             maxLines = 1,
@@ -179,11 +172,12 @@ fun ConfigUserWorkout(
                     imageVector = Icons.Filled.Check,
                     contentDescription = "",
                     modifier = Modifier.clickable {
+                        if (ageInt > 9 && ageInt < 100)
                         trainingViewModel.onChangeAge(ageInt)
                     },
                     tint = (
-                            if ((ageString.toIntOrNull() ?: ageString) == currentAge)
-                                Color.Blue
+                            if (ageInt == currentAge)
+                                Color.Green
                             else
                                 Color.Black
                             )
@@ -196,10 +190,9 @@ fun ConfigUserWorkout(
             value = timeString,
             onValueChange = {
                 timeString = it
-                it.toIntOrNull()?.let { safeTime ->
-                    timeInt = safeTime
-                }
-            },
+                if (timeString != "" && timeString.toIntOrNull() != null)
+                    timeInt = timeString.toInt()
+                },
             label = { Text(text = "Workout Time") },
             singleLine = true,
             maxLines = 1,
@@ -208,11 +201,12 @@ fun ConfigUserWorkout(
                     imageVector = Icons.Filled.Check,
                     contentDescription = "",
                     modifier = Modifier.clickable {
+                        if (timeInt > 9 && timeInt < 120)
                         trainingViewModel.onChangeTime(timeInt)
                     },
                     tint = (
-                            if ((timeString.toIntOrNull() ?: timeString) == currentTime)
-                                Color.Blue
+                            if (timeInt == currentTime)
+                                Color.Green
                             else
                                 Color.Black
                             )
@@ -231,11 +225,12 @@ fun ConfigUserWorkout(
                     imageVector = Icons.Filled.Check,
                     contentDescription = "",
                     modifier = Modifier.clickable {
+                        if (injure != "")
                         trainingViewModel.onChangeInjure(injure)
                     },
                     tint = (
                             if (injure == currentInjure)
-                                Color.Blue
+                                Color.Green
                             else
                                 Color.Black
                             )
