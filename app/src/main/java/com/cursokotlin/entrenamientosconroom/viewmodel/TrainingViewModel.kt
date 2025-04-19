@@ -22,14 +22,17 @@ class TrainingViewModel @Inject constructor(
     val workoutWithSets: LiveData<List<WorkoutWithSetsAndExercises>> get() = _workoutWithSets
 
     fun loadWorkout(userData: UserDataModel) {
-        // 1. Llama al API y guarda en BD
+        // Paso 1: Llama al UseCase que hace POST a la API y guarda en Room
         viewModelScope.launch {
             trainingUseCase(userData)
 
-            // 2. Consulta los datos ya guardados
+            // Paso 2: Recupera todos los workouts simples (sin relaciones)
             val allWorkouts = workoutDao.getAllWorkouts()
-            val detailedWorkouts = allWorkouts.flatMap {
-                workoutDao.getWorkoutWithSetsAndExercises(it.workoutId.toInt())
+
+            // Paso 3: Recorre cada workout y obtiene su estructura completa (sets + ejercicios)
+            val detailedWorkouts = mutableListOf<WorkoutWithSetsAndExercises>()
+            for (workout in allWorkouts) {
+               detailedWorkouts += workoutDao.getWorkoutWithSetsAndExercises(workout.workoutId.toInt())
             }
             _workoutWithSets.value = detailedWorkouts
         }

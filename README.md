@@ -62,41 +62,62 @@ Inventate dos o tres entrenamientos y muestra sus datos en la vista**/
     Wt5=+y%.XI!,gK.I?xgQ
     
 ### Modelo1: 
-data class UserDataModel(
-    val sex: Int,
+    data class UserDataModel(
+    val sex: Int,                           (0 => fem, 1 => masc)
     val age: Int,
-    val target: Int,
-    val muscles: List<Int>,
-    val difficulty: Int,
+    val target: Int,                        (0 => ganar músculo,1 => bajar de peso y 2 => mantener o mejorar salud)
+    val muscles: List<Int>,         (ID => Musculos a entrenar)
+    val difficulty: Int,                    (0 => facil, 1 => medio, 2 => dificil)
     val time: Int,
     val injuries: String,
-    val language: Int
+    val language: Int                   (0 => ingles, 1 => español)
 )
 
 ### Modelo2: 
 
-data class ExerciseModel(
-val order_exercise_id: Int,
-val name: String,
-val language_name: String,
-val reps: String,
-val movement_id: Int,
-val muscle_id: Int,
-val url: String
-)
+    data class ExerciseModel(
+    val order_exercise_id: Int,
+    val name: String,
+    val language_name: String,
+    val reps: String,
+    val movement_id: Int,
+    val muscle_id: Int,
+    val url: String
+    )
 
-data class SetModel(
-val exercises: List<ExerciseModel>,
-val rounds: Int,
-val order_set_id: Int
-)
+    data class SetModel(
+    val exercises: List<ExerciseModel>,
+    val rounds: Int,
+    val order_set_id: Int
+    )
 
-data class WorkoutModel(
+    data class WorkoutModel(
     val name: String,
     val coach_explanation: String,
     val sets: List<SetModel>
-)
+    )
 
+### "Músculos a entrenar (IDs)"
 
+#### 💪Músculos del tren superior (upperBodyItems):
+    Pecho	50
+    Tríceps	31
+    Hombros	90
+    Espalda	10
+    Bíceps	30
+    Antebrazos	60
+    Trapecios	20
+
+#### 🦵 Músculos del tren inferior (lowerBodyItems):
+    Cuádriceps	11
+    Glúteos	70
+    Isquiotibiales	40
+    Pantorrillas	21
+    Aductores	51
+    Abductores	61
+
+#### 🍫 Músculos del core (coreItems):
+    Abdomen	80
+    Espalda baja	41
     
 

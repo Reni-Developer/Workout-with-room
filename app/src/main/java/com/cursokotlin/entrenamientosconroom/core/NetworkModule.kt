@@ -30,23 +30,4 @@ class NetworkModule {
         return retrofit.create(TrainingClient::class.java)
     }
 
-    @Module
-    @InstallIn(SingletonComponent::class)
-    object DatabaseModule {
-        @Provides
-        @Singleton
-        fun provideDatabase(@ApplicationContext context: Context): WorkoutDatabase {
-            return Room.databaseBuilder(context, WorkoutDatabase::class.java, "app_db")
-                .fallbackToDestructiveMigration()
-                .build()
-        }
-
-        @Provides
-        fun provideWorkoutDao(db: WorkoutDatabase) = db.workoutDao()
-        @Provides
-        fun provideSetDao(db: WorkoutDatabase) = db.setDao()
-        @Provides
-        fun provideExerciseDao(db: WorkoutDatabase) = db.exerciseDao()
-    }
-
 }

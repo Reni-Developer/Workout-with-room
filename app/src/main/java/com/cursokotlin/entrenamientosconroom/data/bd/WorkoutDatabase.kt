@@ -4,6 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Database(
     entities = [Workout::class, WorkoutSet::class, Exercise::class],
@@ -17,23 +23,24 @@ abstract class WorkoutDatabase : RoomDatabase() {
     abstract fun exerciseDao(): ExerciseDao
 
 
-    companion object {
-        @Volatile//para indicar que: Cualquier lectura o escritura de esa variable se
-        // hace directamente en la memoria principal y no se guarda en caché por los hilos.
-        // Esto garantiza que todos los hilos vean el valor más actualizado de la variable.
-        private var INSTANCE: WorkoutDatabase? = null
-
-        fun getDatabase(context: Context): WorkoutDatabase {
-            return INSTANCE ?: synchronized(this) {
-                Room.databaseBuilder(
-                    context.applicationContext,
-                    WorkoutDatabase::class.java,
-                    "workout_database"
-                ).fallbackToDestructiveMigration()
-                    .build().also {
-                        INSTANCE = it
-                    }
-            }
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object DatabaseModule {
+        @Provides
+        @Singleton
+        fun provideDatabase(@ApplicationContext context: Context): WorkoutDatabase {
+            return Room.databaseBuilder(context, WorkoutDatabase::class.java, "app_db")
+                .fallbackToDestructiveMigration()
+                .build()
         }
+
+        @Provides
+        fun provideWorkoutDao(db: WorkoutDatabase) = db.workoutDao()
+
+        @Provides
+        fun provideSetDao(db: WorkoutDatabase) = db.setDao()
+
+        @Provides
+        fun provideExerciseDao(db: WorkoutDatabase) = db.exerciseDao()
     }
 }

@@ -12,6 +12,7 @@ interface WorkoutDao {
     @Insert suspend fun insert(workout: Workout): Long
     @Update suspend fun update(workout: Workout)
     @Delete suspend fun delete(workout: Workout)
+    @Delete suspend fun deleteAll(workouts: List<Workout>)
 
     @Transaction
     @Query("SELECT * FROM Workout WHERE workoutid = :id ")

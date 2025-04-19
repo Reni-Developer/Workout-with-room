@@ -21,7 +21,11 @@ class TrainingService @Inject constructor(
             val response = trainingClient.doWorkout(userData = userData)
             if (response.isSuccessful) {
                 response.body()?.let { workoutModel ->
-                    saveToLocalDatabase(workoutModel)
+                    val workouts = workoutDao.getAllWorkouts()
+                    if (workouts.isNotEmpty()) {
+                            workoutDao.deleteAll(workouts)
+                        }
+                        saveToLocalDatabase(workoutModel)
                 }
             } else {
                 Log.e("TrainingService", "Error: ${response.code()}")
@@ -33,13 +37,27 @@ class TrainingService @Inject constructor(
 
     suspend fun saveToLocalDatabase(workoutModel: WorkoutModel) {
 // 🔁 Aquí se guarda el modelo WorkoutModel en la base de datos local.
-        val workoutId = workoutDao.insert(Workout(name = workoutModel.name, coach_explanation = workoutModel.coach_explanation))
+
+
+        val workoutId = workoutDao.insert(
+            Workout(
+                name = workoutModel.name,
+                coach_explanation = workoutModel.coach_explanation
+            )
+        )
 
         workoutModel.sets.forEach { set ->
-            val setId = setDao.insert(WorkoutSet(workoutId = workoutId, rounds = set.rounds, order_set_id = set.order_set_id))
+            val setId = setDao.insert(
+                WorkoutSet(
+                    workoutId = workoutId,
+                    rounds = set.rounds,
+                    order_set_id = set.order_set_id
+                )
+            )
 
             set.exercises.forEach { ex ->
-                exerciseDao.insert(Exercise(
+                exerciseDao.insert(
+                    Exercise(
                         workoutSetId = setId,
                         order_exercise_id = ex.order_exercise_id,
                         name = ex.name,
