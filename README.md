@@ -43,7 +43,7 @@ Inventate dos o tres entrenamientos y muestra sus datos en la vista**/
 # Ejercicio #2: Implementando Retrofit 2 (consumo de apis)
     El siguiente ejercicio es para profundizar en el consumo de apis, uzando Retrofit
 
-## Objetivos:
+## Objectives:
     
     1- Enviar el Modelo1 a la URL de la API con Header_Key y Valor_Key.
     2- Consumir con Retrofit y convertir con Gson el Json recibido que devuelve la API.

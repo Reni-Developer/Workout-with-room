@@ -9,6 +9,7 @@ import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutWithSetsAndExercises
 import com.cursokotlin.entrenamientosconroom.data.networkAPI.UserDataModel
 import com.cursokotlin.entrenamientosconroom.dominio.TrainingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,6 +22,15 @@ class TrainingViewModel @Inject constructor(
     private val _workoutWithSets = MutableLiveData<List<WorkoutWithSetsAndExercises>>()
     val workoutWithSets: LiveData<List<WorkoutWithSetsAndExercises>> get() = _workoutWithSets
 
+    private val _age = MutableLiveData<Int>(25)
+    val age: LiveData<Int> get() = _age
+
+    private val _time = MutableLiveData<Int>(30)
+    val time: LiveData<Int> get() = _time
+
+    private val _injure = MutableLiveData<String>("ninguna")
+    val injure: LiveData<String> get() = _injure
+
     fun loadWorkout(userData: UserDataModel) {
         // Paso 1: Llama al UseCase que hace POST a la API y guarda en Room
         viewModelScope.launch {
@@ -32,11 +42,24 @@ class TrainingViewModel @Inject constructor(
             // Paso 3: Recorre cada workout y obtiene su estructura completa (sets + ejercicios)
             val detailedWorkouts = mutableListOf<WorkoutWithSetsAndExercises>()
             for (workout in allWorkouts) {
-               detailedWorkouts += workoutDao.getWorkoutWithSetsAndExercises(workout.workoutId.toInt())
+                detailedWorkouts += workoutDao.getWorkoutWithSetsAndExercises(workout.workoutId.toInt())
             }
             _workoutWithSets.value = detailedWorkouts
         }
     }
+
+    fun onChangeAge(age: Int) {
+        _age.value = age
+    }
+
+    fun onChangeTime(time: Int) {
+        _time.value = time
+    }
+
+    fun onChangeInjure(injure: String) {
+        _injure.value = injure
+    }
+
 }
 
 

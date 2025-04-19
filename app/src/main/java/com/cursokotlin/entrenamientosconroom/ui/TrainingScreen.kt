@@ -2,8 +2,8 @@
 
 package com.cursokotlin.entrenamientosconroom.ui
 
-import androidx.collection.MutableIntList
-import androidx.collection.mutableIntListOf
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -14,12 +14,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -28,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cursokotlin.entrenamientosconroom.data.networkAPI.UserDataModel
@@ -37,15 +42,15 @@ import com.cursokotlin.entrenamientosconroom.viewmodel.TrainingViewModel
 fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingViewModel) {
 
     val workoutWithSetsAndExercises by trainingViewModel.workoutWithSets.observeAsState(emptyList())
+    val age by trainingViewModel.age.observeAsState(initial = 25)
+    val time by trainingViewModel.time.observeAsState(initial = 25)
+    val injure by trainingViewModel.injure.observeAsState("ninguna")
 
-    val sex = 1
-    val age = 25
-    val target = 0
-    val muscles = listOf(50, 31)
-    val difficulty = 2
-    val time = 60
-    val injure = "ninguna"
-    val language = 1
+    var muscles by remember { mutableStateOf(listOf(50, 31)) }
+    var sex by remember { mutableIntStateOf(0) }
+    var target by remember { mutableIntStateOf(0) }
+    var difficulty by remember { mutableIntStateOf(2) }
+    var language by remember { mutableIntStateOf(1) }
 
     val currentUserData = remember {
         UserDataModel(
@@ -62,6 +67,9 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
     var lastUserData by remember { mutableStateOf<UserDataModel?>(null) }
 
     Column(modifier = modifier.fillMaxSize()) {
+
+        ConfigUserWorkout(modifier, trainingViewModel, age, time, injure)
+
         Button(modifier = modifier
             .padding(horizontal = 8.dp),
             shape = ButtonDefaults.elevatedShape,
@@ -74,7 +82,7 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
             }
         )
         {
-            Text(text = "Star Training")
+            Text(text = "Update Training")
         }
 
         Card(
@@ -140,6 +148,103 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
             }
         }
     }
+}
+
+@Composable
+fun ConfigUserWorkout(
+    modifier: Modifier = Modifier,
+    trainingViewModel: TrainingViewModel,
+    currentAge: Int, currentTime: Int, currentInjure: String) {
+
+    var ageInt by remember { mutableIntStateOf(25) }
+    var ageString by remember { mutableStateOf("") }
+    var timeInt by remember { mutableIntStateOf(30) }
+    var timeString by remember { mutableStateOf("") }
+    var injure by remember { mutableStateOf("ninguna") }
+
+    Card(modifier = modifier.fillMaxWidth()) {
+        TextField(
+            value = ageString,
+            onValueChange = {
+                ageString = it
+                it.toIntOrNull()?.let { safeAge ->
+                    ageInt = safeAge
+                }
+            },
+            label = { Text(text = "Your Age") },
+            singleLine = true,
+            maxLines = 1,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = "",
+                    modifier = Modifier.clickable {
+                        trainingViewModel.onChangeAge(ageInt)
+                    },
+                    tint = (
+                            if ((ageString.toIntOrNull() ?: ageString) == currentAge)
+                                Color.Blue
+                            else
+                                Color.Black
+                            )
+                )
+            }
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        TextField(
+            value = timeString,
+            onValueChange = {
+                timeString = it
+                it.toIntOrNull()?.let { safeTime ->
+                    timeInt = safeTime
+                }
+            },
+            label = { Text(text = "Workout Time") },
+            singleLine = true,
+            maxLines = 1,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = "",
+                    modifier = Modifier.clickable {
+                        trainingViewModel.onChangeTime(timeInt)
+                    },
+                    tint = (
+                            if ((timeString.toIntOrNull() ?: timeString) == currentTime)
+                                Color.Blue
+                            else
+                                Color.Black
+                            )
+                )
+            }
+        )
+
+        TextField(
+            value = injure,
+            onValueChange = { injure = it },
+            label = { Text(text = "Injure") },
+            singleLine = true,
+            maxLines = 1,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = "",
+                    modifier = Modifier.clickable {
+                        trainingViewModel.onChangeInjure(injure)
+                    },
+                    tint = (
+                            if (injure == currentInjure)
+                                Color.Blue
+                            else
+                                Color.Black
+                            )
+                )
+            }
+        )
+
+    }
+
 }
 
 
