@@ -32,6 +32,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -98,7 +100,7 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
             Modifier
                 .fillMaxSize()
                 .align(Alignment.CenterHorizontally),
-            colors = CardDefaults.cardColors(Color(0xF32C4A9F))
+            colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
         ) {
             LazyColumn(contentPadding = PaddingValues(8.dp)) {
                 items(
@@ -106,11 +108,11 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
                     workoutWithSetsAndExercises,
                     key = { it.workout.workoutId }) { workoutWithSets ->
                     Text(
-                        color = Color.White, fontWeight = FontWeight.Bold, fontSize = 24.sp,
+                        color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 24.sp,
                         text = "Entrenamiento: ${workoutWithSets.workout.name} "
                     )
                     Text(
-                        color = Color.White,
+                        color = Color.Black,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,
                         textAlign = TextAlign.End,
@@ -144,11 +146,11 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
                             text = "${setWithExercise.set.rounds} Rounds"
                         )
                         setWithExercise.exercises.forEach { exercise ->
-                            Text(color = Color.White, text = "${exercise.order_exercise_id} ")
-                            Text(color = Color.White, text = "Exercise: ${exercise.name}")
-                            Text(color = Color.White, text = "Reps ${exercise.reps} ")
-                            Text(color = Color.White, text = "movement ${exercise.movement_id}")
-                            Text(color = Color.White, text = "muscle ${exercise.muscle_id}")
+                            Text(color = Color.Black, text = "${exercise.order_exercise_id} ")
+                            Text(color = Color.Black, text = "Exercise: ${exercise.name}")
+                            Text(color = Color.Black, text = "Reps ${exercise.reps} ")
+                            Text(color = Color.Black, text = "movement ${exercise.movement_id}")
+                            Text(color = Color.Black, text = "muscle ${exercise.muscle_id}")
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -173,7 +175,8 @@ fun ConfigUserWorkout(
 
     Card(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
     ) {
         TextField(
             value = ageString,
@@ -200,8 +203,13 @@ fun ConfigUserWorkout(
                                 Color.Black
                             )
                 )
-            }
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFC9C9C9),
+                unfocusedContainerColor = Color(0xFFFBFBFB)
+            )
         )
+
         TextField(
             value = timeString,
             onValueChange = {
@@ -227,7 +235,11 @@ fun ConfigUserWorkout(
                                 Color.Black
                             )
                 )
-            }
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFC9C9C9),
+                unfocusedContainerColor = Color(0xFFFBFBFB)
+            )
         )
         TextField(
             value = injure,
@@ -250,7 +262,11 @@ fun ConfigUserWorkout(
                                 Color.Black
                             )
                 )
-            }
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFC9C9C9),
+                unfocusedContainerColor = Color(0xFFFBFBFB)
+            )
         )
     }
 }
@@ -272,9 +288,10 @@ fun SelectSex(trainingViewModel: TrainingViewModel) {
                     selectColor = true
                     trainingViewModel.onChangeSex(1)
                 },
+            elevation = CardDefaults.cardElevation(8.dp),
             colors = if (selectColor) {
-                CardDefaults.cardColors(Color(0xF3365CA4))
-            } else CardDefaults.cardColors(Color(0xF396A6CB))
+                CardDefaults.cardColors(Color(0xFF7C7C7C))
+            } else CardDefaults.cardColors(Color(0xFFFBFBFB))
         ) {
             Icon(
                 painter = painterResource(id = com.cursokotlin.entrenamientosconroom.R.drawable.ic_male),
@@ -293,10 +310,10 @@ fun SelectSex(trainingViewModel: TrainingViewModel) {
                     selectColor = false
                     trainingViewModel.onChangeSex(0)
                 },
-            colors =
-            if (selectColor == false) {
-                CardDefaults.cardColors(Color(0xF3365CA4))
-            } else CardDefaults.cardColors(Color(0xF396A6CB))
+            elevation = CardDefaults.cardElevation(8.dp),
+            colors = if (selectColor == false) {
+                CardDefaults.cardColors(Color(0xFF7C7C7C))
+            } else CardDefaults.cardColors(Color(0xFFFBFBFB))
         ) {
             Icon(
                 painter = painterResource(com.cursokotlin.entrenamientosconroom.R.drawable.ic_female),
@@ -323,7 +340,7 @@ fun UpdateTraining(
             .size(width = 170.dp, height = 40.dp),
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(Color(0xF32C4A9F)),
+        colors = CardDefaults.cardColors(Color(0xFFFBFBFB)),
         onClick = {
             if (currentUserData != lastUserData.value) {
                 lastUserData.value = currentUserData
@@ -335,8 +352,9 @@ fun UpdateTraining(
     {
         Text(
             text = "Update Training",
-            Modifier
-                .align(Alignment.CenterHorizontally),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 6.dp),
             textAlign = TextAlign.Center,
             fontSize = 16.sp,
             fontWeight = FontWeight.ExtraBold
@@ -353,6 +371,7 @@ fun DropdownMenuLanguage(trainingViewModel: TrainingViewModel) {
     Column {
         Card(
             modifier = Modifier
+                .align(Alignment.CenterHorizontally)
                 .fillMaxWidth()
                 .height(65.dp)
                 .clickable { expanded = true },
