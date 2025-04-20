@@ -31,6 +31,18 @@ class TrainingViewModel @Inject constructor(
     private val _injure = MutableLiveData<String>("ninguna")
     val injure: LiveData<String> get() = _injure
 
+    private val _sex = MutableLiveData<Int>(1)
+    val sex: LiveData<Int> get() = _sex
+
+    private val _language = MutableLiveData<Int>(1)
+    val language: LiveData<Int> get() = _language
+
+    private val _target = MutableLiveData<Int>(0)
+    val target: LiveData<Int> get() = _target
+
+    private val _difficulty = MutableLiveData<Int>(2)
+    val difficulty: LiveData<Int> get() = _difficulty
+
     fun loadWorkout(userData: UserDataModel) {
         // Paso 1: Llama al UseCase que hace POST a la API y guarda en Room
         viewModelScope.launch {
@@ -58,6 +70,14 @@ class TrainingViewModel @Inject constructor(
 
     fun onChangeInjure(injure: String) {
         _injure.value = injure
+    }
+
+    fun onChangeSex(sex: Int) {
+        _sex.value = sex
+    }
+
+    fun onChangeLanguage(language: Int) {
+        _language.value = language
     }
 
 }

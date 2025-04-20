@@ -119,5 +119,19 @@ Inventate dos o tres entrenamientos y muestra sus datos en la vista**/
 #### 🍫 Músculos del core (coreItems):
     Abdomen	80
     Espalda baja	41
-    
 
+
+curl 
+-X POST "https://coachai-server.onrender.com/coach/generate_workout"   
+-H "Content-Type: application/json"   
+-H "X-API-Key: Wt5=+y%.XI!,gK.I?xgQ"   
+-d '{
+"sex": 0,
+"age": 25,
+"target": 1,
+"muscles": [1, 2],
+"difficulty": 2,
+"time": 30,
+"injuries": "none",
+"language": 0
+}'
