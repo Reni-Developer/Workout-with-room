@@ -79,9 +79,9 @@ class TrainingViewModel @Inject constructor(
         updatedList?.let {
             it[index] = it[index].copy(selected = selected)
             _musclesById.value = it
+            val selectedMuscles = it.filter { it.selected }.mapNotNull { it.id }
+            _muscles.value = selectedMuscles
         }
-        var selectedMuscles = musclesById.filter { it.selected }.mapNotNull { it.id }
-        _muscles.value = selectedMuscles
     }
 
     fun onChangeAge(age: Int) {
