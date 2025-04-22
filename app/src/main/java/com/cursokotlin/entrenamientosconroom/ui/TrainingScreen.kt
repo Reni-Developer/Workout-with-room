@@ -133,25 +133,8 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
 @Composable
 fun ConfigMuscles(modifier: Modifier, trainingViewModel: TrainingViewModel) {
 
-    var muscles = remember {
-        mutableStateListOf(
-            CheckInfo("Pecho", false, 50),
-            CheckInfo("Tríceps", false, 31),
-            CheckInfo("Hombros", false, 90),
-            CheckInfo("Espalda", false, 10),
-            CheckInfo("Bíceps", false, 30),
-            CheckInfo("Antebrazos", false, 60),
-            CheckInfo("Trapecios", false, 20),
-            CheckInfo("Cuádriceps", false, 11),
-            CheckInfo("Glúteos", false, 70),
-            CheckInfo("Isquiotibiales", false, 40),
-            CheckInfo("Pantorrillas", false, 21),
-            CheckInfo("Aductores", false, 51),
-            CheckInfo("Abductores", false, 61),
-            CheckInfo("Abdomen", false, 80),
-            CheckInfo("Espalda baja", false, 41)
-        )
-    }
+    val muscles by trainingViewModel.musclesById.observeAsState(listOf())
+
     Card(
         modifier = modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(8.dp),
@@ -163,9 +146,7 @@ fun ConfigMuscles(modifier: Modifier, trainingViewModel: TrainingViewModel) {
                     Checkbox(
                         checked = item.selected,
                         onCheckedChange = {
-                            muscles[index] = item.copy(selected = it)
-                            var selectedMuscles = muscles.filter { it.selected }.mapNotNull { it.id }
-                            trainingViewModel.onChangeMuscles(selectedMuscles)
+                            trainingViewModel.updateMuscleSelection(index, it)
                         })
                     Text(text = item.muscle)
                 }
@@ -173,7 +154,6 @@ fun ConfigMuscles(modifier: Modifier, trainingViewModel: TrainingViewModel) {
         }
     }
 }
-
 data class CheckInfo(
     val muscle: String,
     val selected: Boolean,
@@ -538,7 +518,56 @@ fun TrainingSpacer(
                         Text(color = Color.Black, text = "${exercise.order_exercise_id} ")
                         Text(color = Color.Black, text = "Exercise: ${exercise.name}")
                         Text(color = Color.Black, text = "Reps ${exercise.reps} ")
-                        Text(color = Color.Black, text = "movement ${exercise.movement_id}")
+                        Text(
+                            color = Color.Black,
+                            text =  when (exercise.movement_id) {
+                                803 -> "Movimiento de: Flexión del abdomen superior"
+                                116 -> "Movimiento de: Prensa"
+                                902 -> "Movimiento de: Elevación frontal de hombros"
+                                200 -> "Movimiento de: Encogimientos de trapecio"
+                                115 -> "Movimiento de: Extensión de rodilla"
+                                102 -> "Movimiento de: Jalón en vertical"
+                                805 -> "Movimiento de: Flexión lateral"
+                                501 -> "Movimiento de: Empuje recto"
+                                110 -> "Movimiento de: Subida al cajón"
+                                113 -> "Movimiento de: Levantamiento de cadera"
+                                315 -> "Movimiento de: Fondos"
+                                301 -> "Movimiento de: Curls de martillo o invertido"
+                                504 -> "Movimiento de: Aperturas"
+                                802 -> "Movimiento de: Flexión abdominal completa"
+                                111 -> "Movimiento de: Curl de isquiotibiales"
+                                103 -> "Movimiento de: Extensión de codo en plano bajo"
+                                311 -> "Movimiento de: Extensión de codo sobre la cabeza"
+                                502 -> "Movimiento de: Empuje inclinado"
+                                505 -> "Movimiento de: Pullover"
+                                314 -> "Movimiento de: Empuje recto con agarre cerrado"
+                                210 -> "Movimiento de: Elevación de talones"
+                                610 -> "Movimiento de: Abducción de cadera"
+                                410 -> "Movimiento de: Extensión de espalda"
+                                201 -> "Movimiento de: Remo vertical"
+                                101 -> "Movimiento de: Jalón en horizontal"
+                                117 -> "Movimiento de: Zancada"
+                                801 -> "Movimiento de: Estabilidad del core"
+                                313 -> "Movimiento de: Extensión de codo hacia el frente"
+                                806 -> "Movimiento de: Flexión de abdomen inferior"
+                                118 -> "Movimiento de: Zancada estática"
+                                300 -> "Movimiento de: Curl supinado"
+                                804 -> "Movimiento de: Rotación de tronco"
+                                114 -> "Movimiento de: Extensión de cadera"
+                                119 -> "Movimiento de: Sentadillas"
+                                510 -> "Movimiento de: Aducción de cadera"
+                                903 -> "Movimiento de: Elevación lateral de hombros"
+                                901 -> "Movimiento de: Elevación de deltoides posterior"
+                                904 -> "Movimiento de: Empuje vertical"
+                                503 -> "Movimiento de: Empuje declinado"
+                                112 -> "Movimiento de: Bisagra de cadera"
+                                302 -> "Movimiento de: Curls de aislamiento"
+                                600 -> "Movimiento de: Curl de muñeca"
+                                312 -> "Movimiento de: Extensión de codo en plano bajo"
+                                else -> "Ejercicio desconocido"
+                            }
+
+                        )
                         Text(color = Color.Black, text = "muscle ${exercise.muscle_id}")
                     }
                     Spacer(modifier = Modifier.height(16.dp))

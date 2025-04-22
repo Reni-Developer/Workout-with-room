@@ -1,6 +1,8 @@
 package com.cursokotlin.entrenamientosconroom.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,6 +11,7 @@ import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutDao
 import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutWithSetsAndExercises
 import com.cursokotlin.entrenamientosconroom.data.networkAPI.UserDataModel
 import com.cursokotlin.entrenamientosconroom.dominio.TrainingUseCase
+import com.cursokotlin.entrenamientosconroom.ui.CheckInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -50,6 +53,37 @@ class TrainingViewModel @Inject constructor(
     private val _muscles = MutableLiveData<List<Int>>(listOf())
     val muscles: LiveData<List<Int>> get() = _muscles
 
+    var _musclesById = MutableLiveData<List<CheckInfo>>(
+        listOf(
+            CheckInfo("Pecho", false, 50),
+            CheckInfo("Tríceps", false, 31),
+            CheckInfo("Hombros", false, 90),
+            CheckInfo("Espalda", false, 10),
+            CheckInfo("Bíceps", false, 30),
+            CheckInfo("Antebrazos", false, 60),
+            CheckInfo("Trapecios", false, 20),
+            CheckInfo("Cuádriceps", false, 11),
+            CheckInfo("Glúteos", false, 70),
+            CheckInfo("Isquiotibiales", false, 40),
+            CheckInfo("Pantorrillas", false, 21),
+            CheckInfo("Aductores", false, 51),
+            CheckInfo("Abductores", false, 61),
+            CheckInfo("Abdomen", false, 80),
+            CheckInfo("Espalda baja", false, 41)
+        )
+    )
+    val musclesById: LiveData<List<CheckInfo>> get() = _musclesById
+
+    fun updateMuscleSelection(index: Int, selected: Boolean) {
+        val updatedList = _musclesById.value?.toMutableList()
+        updatedList?.let {
+            it[index] = it[index].copy(selected = selected)
+            _musclesById.value = it
+        }
+        var selectedMuscles = musclesById.filter { it.selected }.mapNotNull { it.id }
+        _muscles.value = selectedMuscles
+    }
+
     fun onChangeAge(age: Int) {
         _age.value = age
     }
@@ -77,10 +111,6 @@ class TrainingViewModel @Inject constructor(
 
     fun onChangeDifficulty(difficulty: Int) {
         _difficulty.value = difficulty
-    }
-
-    fun onChangeMuscles(muscles: List<Int>) {
-        _muscles.value = muscles
     }
 
     fun loadWorkout(userData: UserDataModel) {
