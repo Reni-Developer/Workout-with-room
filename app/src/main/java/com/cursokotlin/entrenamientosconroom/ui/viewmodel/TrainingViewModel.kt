@@ -50,7 +50,7 @@ class TrainingViewModel @Inject constructor(
     private val _muscles = MutableLiveData<List<Int>>(listOf())
     val muscles: LiveData<List<Int>> get() = _muscles
 
-    var _musclesById = MutableLiveData<List<CheckInfo>>(
+    val _musclesById = MutableLiveData<List<CheckInfo>>(
         listOf(
             CheckInfo("Pecho", false, 50),
             CheckInfo("Tríceps", false, 31),
@@ -112,21 +112,21 @@ class TrainingViewModel @Inject constructor(
 
     fun loadWorkout(userData: UserDataModel) {
         // Paso 1: Llama al UseCase que hace POST a la API y guarda en Room
-        _isLoading.value = true
-        viewModelScope.launch {
-            trainingUseCase(userData)
 
+        viewModelScope.launch {
+            _isLoading.value = true
+            trainingUseCase(userData)
             // Paso 2: Recupera todos los workouts simples (sin relaciones)
             val allWorkouts = workoutDao.getAllWorkouts()
-
             // Paso 3: Recorre cada workout y obtiene su estructura completa (sets + ejercicios)
             val detailedWorkouts = mutableListOf<WorkoutWithSetsAndExercises>()
             for (workout in allWorkouts) {
                 detailedWorkouts += workoutDao.getWorkoutWithSetsAndExercises(workout.workoutId.toInt())
             }
             _workoutWithSets.value = detailedWorkouts
+            _isLoading.value = false
         }
-        _isLoading.value = false
+
     }
 
 }

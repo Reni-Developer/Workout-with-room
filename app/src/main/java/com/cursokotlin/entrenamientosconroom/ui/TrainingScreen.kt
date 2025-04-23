@@ -114,12 +114,11 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
         SelectDropdownMenu(Modifier, difficulties, difficultiesIcon, trainingViewModel)
         Spacer(Modifier.height(8.dp))
 
-        TrainingSpacer(Modifier.weight(1f), workoutWithSetsAndExercises)
+        TrainingSpacer(Modifier.weight(0.9f), workoutWithSetsAndExercises)
         Spacer(modifier = Modifier.height(8.dp))
 
-        UpdateTraining(Modifier.fillMaxWidth(), trainingViewModel, currentUserData)
+        UpdateTraining(Modifier.weight(0.12f), trainingViewModel, currentUserData)
         Spacer(modifier = Modifier.height(8.dp))
-
     }
 }
 
@@ -226,14 +225,14 @@ fun TextFieldWorkout(
                 keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(onDone = {
-                if (timeInt > 9 && timeInt < 120) trainingViewModel.onChangeTime(timeInt)
+                if (timeInt > 9 && timeInt < 121) trainingViewModel.onChangeTime(timeInt)
             }),
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = "",
                     modifier = Modifier.clickable {
-                        if (timeInt > 9 && timeInt < 120) trainingViewModel.onChangeTime(timeInt)
+                        if (timeInt > 9 && timeInt < 121) trainingViewModel.onChangeTime(timeInt)
                     },
                     tint = if (timeInt == currentTime && timeInt != 0) Color.Blue
                     else Color.Black
@@ -292,7 +291,7 @@ fun SelectSex(trainingViewModel: TrainingViewModel) {
                     selectColor = true
                     trainingViewModel.onChangeSex(1)
                 }, elevation = CardDefaults.cardElevation(8.dp), colors = if (selectColor) {
-                CardDefaults.cardColors(Color(0xFF7C7C7C))
+                CardDefaults.cardColors(Color(0xFFB2B2B2))
             } else CardDefaults.cardColors(Color(0xFFFBFBFB))
         ) {
             Icon(
@@ -300,7 +299,8 @@ fun SelectSex(trainingViewModel: TrainingViewModel) {
                 contentDescription = "",
                 Modifier
                     .size(40.dp)
-                    .align(Alignment.CenterHorizontally)
+                    .align(Alignment.CenterHorizontally),
+                tint = if (selectColor) Color.Blue else Color.Black
             )
         }
         Spacer(Modifier.size(8.dp))
@@ -314,7 +314,7 @@ fun SelectSex(trainingViewModel: TrainingViewModel) {
                 },
             elevation = CardDefaults.cardElevation(8.dp),
             colors = if (selectColor == false) {
-                CardDefaults.cardColors(Color(0xFF7C7C7C))
+                CardDefaults.cardColors(Color(0xFFB2B2B2))
             } else CardDefaults.cardColors(Color(0xFFFBFBFB))
         ) {
             Icon(
@@ -322,7 +322,8 @@ fun SelectSex(trainingViewModel: TrainingViewModel) {
                 contentDescription = "female",
                 Modifier
                     .size(40.dp)
-                    .align(Alignment.CenterHorizontally)
+                    .align(Alignment.CenterHorizontally),
+                tint = if (selectColor == false) Color(0xDDE040FB) else Color.Black
             )
         }
     }
@@ -336,27 +337,30 @@ fun UpdateTraining(
         mutableStateOf(UserDataModel(0, 0, 0, listOf(), 0, 0, "", 0))
     }
     val isLoading by trainingViewModel.isLoading.observeAsState(false)
+Log.d("UpdateTraining", "isLoading = $isLoading")
 
-    if (isLoading) {
-        Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    } else {
+    val enable = currentUserData != lastUserData.value
+
         Card(
             modifier = modifier
                 .fillMaxWidth()
                 .height(IntrinsicSize.Min), // Asegura que solo crece lo necesario
             shape = RoundedCornerShape(20.dp),
             elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(Color(0xFFFBFBFB)),
+            colors = CardDefaults.cardColors(Color(0xFF485C91)),
             onClick = {
                 if (currentUserData != lastUserData.value) {
                     lastUserData.value = currentUserData
                     trainingViewModel.loadWorkout(currentUserData)
                 }
             },
-            enabled = (currentUserData != lastUserData.value)
+            enabled = enable
         ) {
+            if (isLoading) {
+                Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -371,6 +375,7 @@ fun UpdateTraining(
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
                         .align(Alignment.CenterVertically),
+                    color = Color.White,
                     textAlign = TextAlign.Center,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.ExtraBold
@@ -378,7 +383,11 @@ fun UpdateTraining(
                 Icon(
                     painter = painterResource(id = com.cursokotlin.entrenamientosconroom.R.drawable.ic_fitness),
                     contentDescription = null,
-                    modifier = modifier.size(35.dp)
+                    modifier = Modifier.size(35.dp),
+                    tint =
+                    if (enable)
+                    Color(0xFFEEFF41)
+                    else Color(0xFFFFFFFF)
                 )
             }
         }
@@ -413,7 +422,18 @@ fun SelectDropdownMenu(
                     contentDescription = "",
                     Modifier
                         .size(40.dp)
-                        .align(Alignment.CenterVertically)
+                        .align(Alignment.CenterVertically),
+                    tint = when (selected) {
+                        "Spanish" -> Color.Blue
+                        "English" -> Color.Green
+                        "Gain muscle" -> Color.Red
+                        "Lose weight" -> Color.Green
+                        "Maintain or improve health" -> Color.Yellow
+                        "Easy" -> Color.Yellow
+                        "Medium" -> Color.Green
+                        "Hard" -> Color.Red
+                        else -> Color.Black
+                    }
                 )
                 Text(
                     text = selected,
@@ -457,6 +477,7 @@ fun SelectDropdownMenu(
                                 selectedIndex
                             )
                         }
+                        Log.d("DropdownMenu", "option selected: $options")
                         Log.d("DropdownMenu", "Index selected: $selected")
                         Log.d("DropdownMenu", "Index selected: $selectedIndex")
                     }, colors = MenuDefaults.itemColors(
@@ -485,13 +506,13 @@ fun TrainingSpacer(
         LazyColumn(contentPadding = PaddingValues(8.dp)) {
             items(workoutWithSetsAndExercises, key = { it.workout.workoutId }) { workoutWithSets ->
                 Text(
-                    color = Color.Black,
+                    color = Color(0xFF485C91),
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
                     text = "Entrenamiento: ${workoutWithSets.workout.name} "
                 )
                 Text(
-                    color = Color.Black,
+                    color = Color(0xFF424657),
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
                     textAlign = TextAlign.End,
@@ -501,7 +522,7 @@ fun TrainingSpacer(
                 Spacer(modifier = Modifier.height(16.dp))
                 Divider(
                     thickness = 1.dp,
-                    color = Color(0xFF414141),
+                    color = Color(0xFF485C91),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp)
@@ -509,24 +530,47 @@ fun TrainingSpacer(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 workoutWithSets.sets.forEach { setWithExercise ->
-                    val set = setWithExercise.set.order_set_id
-                    val realSet = set + 1
                     Text(
                         color = Color(0xFF282828),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        text = "Set No.${realSet}"
+                        text = "Set No.${setWithExercise.set.order_set_id + 1}"
                     )
-                    Spacer(modifier = Modifier.size(8.dp))
-
                     Text(
                         color = Color.Gray,
                         fontWeight = FontWeight.Bold,
                         text = "${setWithExercise.set.rounds} Rounds"
                     )
+                    Spacer(modifier = Modifier.size(8.dp))
+
                     setWithExercise.exercises.forEach { exercise ->
-                        Text(color = Color.Black, text = "${exercise.order_exercise_id} ")
-                        Text(color = Color.Black, text = "Exercise: ${exercise.name}")
+                        Text(
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            text = "Exercise: ${exercise.order_exercise_id + 1} "
+                        )
+                        Text(
+                            color = Color.Black,
+                            text = when (exercise.muscle_id) {
+                                50 -> "Ejercicios para: Pecho"
+                                31 -> "Ejercicios para: Tríceps"
+                                90 -> "Ejercicios para: Hombros"
+                                10 -> "Ejercicios para: Espalda"
+                                30 -> "Ejercicios para: Bíceps"
+                                60 -> "Ejercicios para: Antebrazos"
+                                20 -> "Ejercicios para: Trapecios"
+                                11 -> "Ejercicios para: Cuádriceps"
+                                70 -> "Ejercicios para: Glúteos"
+                                40 -> "Ejercicios para: Isquiotibiales"
+                                21 -> "Ejercicios para: Pantorrillas"
+                                51 -> "Ejercicios para: Aductores"
+                                61 -> "Ejercicios para: Abductores"
+                                80 -> "Ejercicios para: Abdomen"
+                                41 -> "Ejercicios para: Espalda baja"
+                                else -> "Ejercicio desconocido"
+                            }
+                        )
+                        Text(color = Color.Black, text = exercise.name)
                         Text(color = Color.Black, text = "Reps ${exercise.reps} ")
                         Text(
                             color = Color.Black,
@@ -577,27 +621,7 @@ fun TrainingSpacer(
                                 else -> "Ejercicio desconocido"
                             }
                         )
-                        Text(
-                            color = Color.Black,
-                            text = when (exercise.muscle_id) {
-                                50 -> "Ejercicios para: Pecho"
-                                31 -> "Ejercicios para: Tríceps"
-                                90 -> "Ejercicios para: Hombros"
-                                10 -> "Ejercicios para: Espalda"
-                                30 -> "Ejercicios para: Bíceps"
-                                60 -> "Ejercicios para: Antebrazos"
-                                20 -> "Ejercicios para: Trapecios"
-                                11 -> "Ejercicios para: Cuádriceps"
-                                70 -> "Ejercicios para: Glúteos"
-                                40 -> "Ejercicios para: Isquiotibiales"
-                                21 -> "Ejercicios para: Pantorrillas"
-                                51 -> "Ejercicios para: Aductores"
-                                61 -> "Ejercicios para: Abductores"
-                                80 -> "Ejercicios para: Abdomen"
-                                41 -> "Ejercicios para: Espalda baja"
-                                else -> "Ejercicio desconocido"
-                            }
-                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
