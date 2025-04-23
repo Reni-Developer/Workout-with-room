@@ -11,7 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.cursokotlin.entrenamientosconroom.ui.theme.EntrenamientosConRoomTheme
 import com.cursokotlin.entrenamientosconroom.ui.TrainingScreen
-import com.cursokotlin.entrenamientosconroom.viewmodel.TrainingViewModel
+import com.cursokotlin.entrenamientosconroom.ui.viewmodel.TrainingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

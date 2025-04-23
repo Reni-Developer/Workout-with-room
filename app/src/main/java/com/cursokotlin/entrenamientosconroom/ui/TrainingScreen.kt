@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,8 +26,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -40,7 +37,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
@@ -52,15 +48,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.room.util.TableInfo
 import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutWithSetsAndExercises
 import com.cursokotlin.entrenamientosconroom.data.networkAPI.UserDataModel
-import com.cursokotlin.entrenamientosconroom.viewmodel.TrainingViewModel
-import kotlin.math.log
+import com.cursokotlin.entrenamientosconroom.ui.viewmodel.TrainingViewModel
 
 @Composable
 fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingViewModel) {
@@ -103,7 +96,7 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
     ) {
         Spacer(Modifier.height(8.dp))
         Row(Modifier.weight(0.35f)) {
-            ConfigUserWorkout(Modifier.weight(1f), trainingViewModel, age, time, injuries)
+            TextFieldWorkout(Modifier.weight(1f), trainingViewModel, age, time, injuries)
             Spacer(Modifier.width(8.dp))
             ConfigMuscles(Modifier.weight(1f), trainingViewModel)
         }
@@ -154,6 +147,7 @@ fun ConfigMuscles(modifier: Modifier, trainingViewModel: TrainingViewModel) {
         }
     }
 }
+
 data class CheckInfo(
     val muscle: String,
     val selected: Boolean,
@@ -162,7 +156,7 @@ data class CheckInfo(
 
 
 @Composable
-fun ConfigUserWorkout(
+fun TextFieldWorkout(
     modifier: Modifier = Modifier,
     trainingViewModel: TrainingViewModel,
     currentAge: Int,
@@ -180,27 +174,41 @@ fun ConfigUserWorkout(
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
     ) {
-        TextField(value = ageString, onValueChange = {
-            ageString = it
-            if (ageString != "" && ageString.toIntOrNull() != null) ageInt = ageString.toInt()
-        }, label = { Text(text = "Your Age") }, keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
-        ), keyboardActions = KeyboardActions(onDone = {
-            if (ageInt > 9 && ageInt < 100) trainingViewModel.onChangeAge(ageInt)
-        }), singleLine = true, maxLines = 1, trailingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = "",
-                modifier = Modifier.clickable {
-                    if (ageInt > 9 && ageInt < 100) trainingViewModel.onChangeAge(ageInt)
-                },
-                tint = (if (ageInt == currentAge && ageInt != 0) Color.Blue
-                else Color.Black)
+        TextField(
+            value = ageString,
+            onValueChange = {
+                ageString = it
+                if (ageString != "" && ageString.toIntOrNull() != null) ageInt = ageString.toInt()
+            },
+            Modifier.weight(1f),
+            label = {
+                Text(text = "Your Age")
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(onDone = {
+                if (ageInt > 9 && ageInt < 100) trainingViewModel.onChangeAge(ageInt)
+            }),
+            singleLine = true,
+            maxLines = 1,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = "",
+                    modifier = Modifier.clickable {
+                        if (ageInt > 9 && ageInt < 100)
+                            trainingViewModel.onChangeAge(ageInt)
+                    },
+                    tint = (if (ageInt == currentAge && ageInt != 0) Color.Blue
+                    else Color.Black)
+                )
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFC9C9C9),
+                unfocusedContainerColor = Color(0xFFFBFBFB)
             )
-        }, colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFFC9C9C9),
-            unfocusedContainerColor = Color(0xFFFBFBFB)
-        )
         )
 
         TextField(
@@ -210,6 +218,7 @@ fun ConfigUserWorkout(
                 if (timeString != "" && timeString.toIntOrNull() != null) timeInt =
                     timeString.toInt()
             },
+            Modifier.weight(1f),
             label = { Text(text = "Workout Time") },
             singleLine = true,
             maxLines = 1,
@@ -238,6 +247,7 @@ fun ConfigUserWorkout(
         TextField(
             value = injure,
             onValueChange = { injure = it },
+            Modifier.weight(1f),
             label = { Text(text = "Injure") },
             singleLine = true,
             maxLines = 1,
@@ -520,7 +530,7 @@ fun TrainingSpacer(
                         Text(color = Color.Black, text = "Reps ${exercise.reps} ")
                         Text(
                             color = Color.Black,
-                            text =  when (exercise.movement_id) {
+                            text = when (exercise.movement_id) {
                                 803 -> "Movimiento de: Flexión del abdomen superior"
                                 116 -> "Movimiento de: Prensa"
                                 902 -> "Movimiento de: Elevación frontal de hombros"
@@ -566,9 +576,28 @@ fun TrainingSpacer(
                                 312 -> "Movimiento de: Extensión de codo en plano bajo"
                                 else -> "Ejercicio desconocido"
                             }
-
                         )
-                        Text(color = Color.Black, text = "muscle ${exercise.muscle_id}")
+                        Text(
+                            color = Color.Black,
+                            text = when (exercise.muscle_id) {
+                                50 -> "Ejercicios para: Pecho"
+                                31 -> "Ejercicios para: Tríceps"
+                                90 -> "Ejercicios para: Hombros"
+                                10 -> "Ejercicios para: Espalda"
+                                30 -> "Ejercicios para: Bíceps"
+                                60 -> "Ejercicios para: Antebrazos"
+                                20 -> "Ejercicios para: Trapecios"
+                                11 -> "Ejercicios para: Cuádriceps"
+                                70 -> "Ejercicios para: Glúteos"
+                                40 -> "Ejercicios para: Isquiotibiales"
+                                21 -> "Ejercicios para: Pantorrillas"
+                                51 -> "Ejercicios para: Aductores"
+                                61 -> "Ejercicios para: Abductores"
+                                80 -> "Ejercicios para: Abdomen"
+                                41 -> "Ejercicios para: Espalda baja"
+                                else -> "Ejercicio desconocido"
+                            }
+                        )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }

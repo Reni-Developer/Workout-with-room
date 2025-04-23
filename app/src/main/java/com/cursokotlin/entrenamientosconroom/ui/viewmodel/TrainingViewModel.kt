@@ -1,8 +1,6 @@
-package com.cursokotlin.entrenamientosconroom.viewmodel
+package com.cursokotlin.entrenamientosconroom.ui.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,7 +11,6 @@ import com.cursokotlin.entrenamientosconroom.data.networkAPI.UserDataModel
 import com.cursokotlin.entrenamientosconroom.dominio.TrainingUseCase
 import com.cursokotlin.entrenamientosconroom.ui.CheckInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
