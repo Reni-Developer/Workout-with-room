@@ -129,7 +129,7 @@ curl
 "sex": 0,
 "age": 25,
 "target": 1,
-"muscles": [1, 2],
+"muscles": [50, 31],
 "difficulty": 2,
 "time": 30,
 "injuries": "none",

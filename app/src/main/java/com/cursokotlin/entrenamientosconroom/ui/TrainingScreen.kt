@@ -337,7 +337,7 @@ fun UpdateTraining(
         mutableStateOf(UserDataModel(0, 0, 0, listOf(), 0, 0, "", 0))
     }
     val isLoading by trainingViewModel.isLoading.observeAsState(false)
-Log.d("UpdateTraining", "isLoading = $isLoading")
+    Log.d("UpdateTraining", "isLoading = $isLoading")
 
     val enable = currentUserData != lastUserData.value
 

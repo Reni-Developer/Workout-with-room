@@ -1,6 +1,7 @@
 [versions]
-agp = "8.8.2"
+agp = "8.9.2"
 converterGson = "2.11.0"
+firebaseBom = "33.13.0"
 hiltAndroid = "2.51.1"
 hiltCompiler = "2.51.1"
 kotlin = "2.1.20"
@@ -10,7 +11,7 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
-composeBom = "2024.04.01"
+composeBom = "2025.04.01"
 room = "2.6.1"
 lifecycle = "2.8.7"
 runtimeLivedata = "1.7.8"
@@ -19,6 +20,8 @@ runtimeLivedata = "1.7.8"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
