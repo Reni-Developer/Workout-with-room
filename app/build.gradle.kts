@@ -73,7 +73,15 @@ dependencies {
 
     //Firebase
     implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
     implementation(libs.firebase.analytics)
+
+    //Icons Extended
+    implementation(libs.androidx.material.icons.extended)
+
+    //Navigator Compose
+    implementation (libs.androidx.navigation.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -51,12 +51,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.Navigator
+import com.cursokotlin.entrenamientosconroom.Routes
 import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutWithSetsAndExercises
 import com.cursokotlin.entrenamientosconroom.data.networkAPI.UserDataModel
 import com.cursokotlin.entrenamientosconroom.ui.viewmodel.TrainingViewModel
 
 @Composable
-fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingViewModel) {
+fun TrainingScreen(modifier: Modifier = Modifier, navigatorController: NavHostController ,trainingViewModel: TrainingViewModel) {
 
     val workoutWithSetsAndExercises by trainingViewModel.workoutWithSets.observeAsState(emptyList())
 
@@ -94,6 +97,13 @@ fun TrainingScreen(modifier: Modifier = Modifier, trainingViewModel: TrainingVie
             .background(color = Color(0xFFF3F2F7))
             .padding(horizontal = 8.dp)
     ) {
+
+        Box(
+            Modifier
+                .background(Color.Blue)
+                .clickable { navigatorController.navigate(Routes.Screen1.route) }
+                .align(Alignment.Start)) { Text(text = "Back") }
+
         Spacer(Modifier.height(8.dp))
         Row(Modifier.weight(0.35f)) {
             TextFieldWorkout(Modifier.weight(1f), trainingViewModel, age, time, injuries)
@@ -337,7 +347,7 @@ fun UpdateTraining(
         mutableStateOf(UserDataModel(0, 0, 0, listOf(), 0, 0, "", 0))
     }
     val isLoading by trainingViewModel.isLoading.observeAsState(false)
-    Log.d("UpdateTraining", "isLoading = $isLoading")
+//    Log.d("UpdateTraining", "isLoading = $isLoading")
 
     val enable = currentUserData != lastUserData.value
 
