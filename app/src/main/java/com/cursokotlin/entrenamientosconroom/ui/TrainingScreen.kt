@@ -100,9 +100,9 @@ fun TrainingScreen(modifier: Modifier = Modifier, navigatorController: NavHostCo
 
         Box(
             Modifier
-                .background(Color.Blue)
+                .background(Color.Black)
                 .clickable { navigatorController.navigate(Routes.Screen1.route) }
-                .align(Alignment.Start)) { Text(text = "Back") }
+                .align(Alignment.Start)) { Text(text = "Back", color = Color.White, fontSize = 18.sp) }
 
         Spacer(Modifier.height(8.dp))
         Row(Modifier.weight(0.35f)) {
