@@ -1,7 +1,5 @@
 package com.cursokotlin.entrenamientosconroom.ui
 
-import android.icu.number.Scale
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,68 +11,57 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.cursokotlin.entrenamientosconroom.R
-import com.cursokotlin.entrenamientosconroom.Routes
 import com.cursokotlin.entrenamientosconroom.ui.viewmodel.LoginViewModel
 
 
 @Composable
-fun LoginScreen(
-    modifier: Modifier = Modifier,
-    navigatorController: NavHostController,
-    loginViewModel: LoginViewModel
-) {
+fun LoginScreen(loginViewModel: LoginViewModel) {
 
     val email: String by loginViewModel.email.collectAsState(initial = "")
     val password: String by loginViewModel.password.collectAsState(initial = "")
     val enableCreateAccount by loginViewModel.buttonEnabled.collectAsState(false)
 
     Column(
-        Modifier.fillMaxWidth().padding(2.dp),
+        Modifier
+            .fillMaxWidth()
+            .padding(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.size(10.dp))
-        Box(
-            Modifier
-                .background(Color.Black)
-                .clickable { navigatorController.navigate(Routes.Screen2.route) }
-                .align(Alignment.End)
-                .padding(end = 8.dp)
-        ) { Text(text = "TEST", color = Color.White, fontSize = 18.sp) }
 
-        Spacer(Modifier.size(80.dp))
+        Spacer(Modifier.size(100.dp))
         IncreaseFit()
 
         Spacer(Modifier.size(100.dp))
@@ -90,10 +77,9 @@ fun LoginScreen(
             SignIn()
             Spacer(Modifier.size(20.dp))
             LoginGoogle()
-            Spacer(Modifier.size(10.dp))
+            Spacer(Modifier.size(15.dp))
             LoginFacebook()
         }
-
 
         Spacer(Modifier.size(100.dp))
         Column(
@@ -101,11 +87,11 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Login(Modifier.weight(1f), enableCreateAccount, loginViewModel)
+            Login(enableCreateAccount, loginViewModel)
             Spacer(Modifier.size(4.dp))
             Or()
             Spacer(Modifier.size(4.dp))
-            CreateAccount(Modifier.weight(1f), enableCreateAccount, loginViewModel)
+            CreateAccount(enableCreateAccount, loginViewModel)
 
         }
 
@@ -120,7 +106,7 @@ fun IncreaseFit() {
         contentDescription = "Logo increase Fit",
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp),
+            .padding(horizontal = 30.dp),
         contentScale = ContentScale.FillWidth
     )
 }
@@ -220,9 +206,15 @@ fun LoginFacebook() {
 }
 
 @Composable
-fun Login(modifier: Modifier, enableCreateAccount: Boolean, loginViewModel: LoginViewModel) {
+fun Login(
+    enableCreateAccount: Boolean,
+    loginViewModel: LoginViewModel
+) {
+
+    val alertDialogError by loginViewModel.alertDialogError.collectAsState(false)
+
     Button(
-        onClick = { },
+        onClick = { loginViewModel.onLogin() },
         enabled = enableCreateAccount,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF446BFD),
@@ -234,26 +226,58 @@ fun Login(modifier: Modifier, enableCreateAccount: Boolean, loginViewModel: Logi
     ) {
         Text(text = "Login", fontSize = 23.sp)
     }
+    if (alertDialogError) {
+        AlertDialog(
+            onDismissRequest = {},
+            confirmButton = {
+                Button(
+                    onClick = { loginViewModel.confirmButton() },
+                    shape = RoundedCornerShape(25),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F1111)),
+                    elevation = ButtonDefaults.buttonElevation(8.dp)
+                    ) {
+                    Text(text = "ACCEPT")
+                }
+            },
+            icon = {
+                Image(
+                    painter = painterResource(id = R.drawable.error_icon),
+                    contentDescription = "Icon Error",
+                    modifier = Modifier.size(100.dp)
+                )
+            },
+            title = { Text(text = "ERROR", color = Color.Red, fontWeight = FontWeight.ExtraBold) },
+            text = {
+                Text(
+                    text = "''Se ha producido un error autenticando al usuario!''",
+                    color = Color(0xF3650E0E),
+                    fontSize = 22.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+        )
+    }
+
 }
 
 @Composable
 fun Or() {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Divider(
+        HorizontalDivider(
             Modifier
                 .fillMaxWidth()
                 .weight(1f)
                 .padding(horizontal = 10.dp),
-            thickness = 0.5.dp,
+            thickness = 0.8.dp,
             color = Color(0xFFA2A2A5)
         )
         Text(text = "OR", color = Color(0xFFA2A2A5))
-        Divider(
+        HorizontalDivider(
             Modifier
                 .fillMaxWidth()
                 .weight(1f)
                 .padding(horizontal = 10.dp),
-            thickness = 0.5.dp,
+            thickness = 0.8.dp,
             color = Color(0xFFA2A2A5)
         )
     }
@@ -261,16 +285,15 @@ fun Or() {
 
 @Composable
 fun CreateAccount(
-    modifier: Modifier,
     enableCreateAccount: Boolean,
     loginViewModel: LoginViewModel
 ) {
 
     Button(
-        onClick = { },
+        onClick = {loginViewModel.onCreateAccount() },
         enabled = enableCreateAccount,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF446BFD),
+            containerColor = Color(0xFF686B79),
             contentColor = Color(0xFFFFFFFF),
             disabledContainerColor = Color(0xFF899DB4),
             disabledContentColor = Color(0xFFCBC9C9)
@@ -280,3 +303,4 @@ fun CreateAccount(
         Text(text = "Create Account", fontSize = 23.sp)
     }
 }
+

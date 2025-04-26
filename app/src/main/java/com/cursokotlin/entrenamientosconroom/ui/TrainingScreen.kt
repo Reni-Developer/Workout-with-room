@@ -33,13 +33,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,17 +52,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.Navigator
-import com.cursokotlin.entrenamientosconroom.Routes
 import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutWithSetsAndExercises
 import com.cursokotlin.entrenamientosconroom.data.networkAPI.UserDataModel
+import com.cursokotlin.entrenamientosconroom.ui.viewmodel.LoginViewModel
 import com.cursokotlin.entrenamientosconroom.ui.viewmodel.TrainingViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun TrainingScreen(modifier: Modifier = Modifier, navigatorController: NavHostController ,trainingViewModel: TrainingViewModel) {
+fun TrainingScreen(
+    modifier: Modifier = Modifier,
+    loginViewModel: LoginViewModel,
+    trainingViewModel: TrainingViewModel
+) {
 
     val workoutWithSetsAndExercises by trainingViewModel.workoutWithSets.observeAsState(emptyList())
-
 
     val age by trainingViewModel.age.observeAsState(initial = 0)
     val time by trainingViewModel.time.observeAsState(initial = 0)
@@ -98,13 +102,9 @@ fun TrainingScreen(modifier: Modifier = Modifier, navigatorController: NavHostCo
             .padding(horizontal = 8.dp)
     ) {
 
-        Box(
-            Modifier
-                .background(Color.Black)
-                .clickable { navigatorController.navigate(Routes.Screen1.route) }
-                .align(Alignment.Start)) { Text(text = "Back", color = Color.White, fontSize = 18.sp) }
-
+        SingOut(loginViewModel)
         Spacer(Modifier.height(8.dp))
+
         Row(Modifier.weight(0.35f)) {
             TextFieldWorkout(Modifier.weight(1f), trainingViewModel, age, time, injuries)
             Spacer(Modifier.width(8.dp))
@@ -129,6 +129,44 @@ fun TrainingScreen(modifier: Modifier = Modifier, navigatorController: NavHostCo
 
         UpdateTraining(Modifier.weight(0.12f), trainingViewModel, currentUserData)
         Spacer(modifier = Modifier.height(8.dp))
+    }
+}
+
+@Composable
+fun SingOut(loginViewModel: LoginViewModel) {
+    Card(
+        Modifier
+            .clickable {
+                loginViewModel.unLog()
+            }
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(20),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
+        elevation = CardDefaults.cardElevation(8.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            HorizontalDivider(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 10.dp),
+                thickness = 0.5.dp,
+                color = Color(0xFFA2A2A5)
+            )
+            Text(
+                text = "Sing Out",
+                color = Color.Black,
+                fontSize = 18.sp
+            )
+            HorizontalDivider(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 10.dp),
+                thickness = 0.5.dp,
+                color = Color(0xFFA2A2A5)
+            )
+        }
     }
 }
 
@@ -351,26 +389,26 @@ fun UpdateTraining(
 
     val enable = currentUserData != lastUserData.value
 
-        Card(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min), // Asegura que solo crece lo necesario
-            shape = RoundedCornerShape(20.dp),
-            elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(Color(0xFF485C91)),
-            onClick = {
-                if (currentUserData != lastUserData.value) {
-                    lastUserData.value = currentUserData
-                    trainingViewModel.loadWorkout(currentUserData)
-                }
-            },
-            enabled = enable
-        ) {
-            if (isLoading) {
-                Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min), // Asegura que solo crece lo necesario
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = CardDefaults.cardColors(Color(0xFF485C91)),
+        onClick = {
+            if (currentUserData != lastUserData.value) {
+                lastUserData.value = currentUserData
+                trainingViewModel.loadWorkout(currentUserData)
+            }
+        },
+        enabled = enable
+    ) {
+        if (isLoading) {
+            Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -395,9 +433,9 @@ fun UpdateTraining(
                     contentDescription = null,
                     modifier = Modifier.size(35.dp),
                     tint =
-                    if (enable)
-                    Color(0xFFEEFF41)
-                    else Color(0xFFFFFFFF)
+                        if (enable)
+                            Color(0xFFEEFF41)
+                        else Color(0xFFFFFFFF)
                 )
             }
         }
