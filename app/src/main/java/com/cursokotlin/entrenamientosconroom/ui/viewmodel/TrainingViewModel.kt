@@ -121,14 +121,14 @@ class TrainingViewModel @Inject constructor(
             // Paso 3: Recorre cada workout y obtiene su estructura completa (sets + ejercicios)
             val detailedWorkouts = mutableListOf<WorkoutWithSetsAndExercises>()
             for (workout in allWorkouts) {
-                detailedWorkouts += workoutDao.getWorkoutWithSetsAndExercises(workout.workoutId.toInt())
+                workoutDao.getWorkoutWithSetsAndExercises(workout.workoutId.toInt())?.let {
+                    detailedWorkouts += it
+                }
             }
             _workoutWithSets.value = detailedWorkouts
             _isLoading.value = false
         }
-
     }
-
 }
 
 
