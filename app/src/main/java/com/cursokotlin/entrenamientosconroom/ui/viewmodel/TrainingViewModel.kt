@@ -112,7 +112,6 @@ class TrainingViewModel @Inject constructor(
 
     fun loadWorkout(userData: UserDataModel) {
         // Paso 1: Llama al UseCase que hace POST a la API y guarda en Room
-
         viewModelScope.launch {
             _isLoading.value = true
             trainingUseCase(userData)

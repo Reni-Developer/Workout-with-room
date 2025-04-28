@@ -9,7 +9,6 @@ import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutDao
 import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutSet
 import javax.inject.Inject
 
-
 class TrainingService @Inject constructor(
     private val trainingClient: TrainingClient,
     private val workoutDao: WorkoutDao,

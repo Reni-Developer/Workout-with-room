@@ -44,9 +44,10 @@ import com.cursokotlin.entrenamientosconroom.ui.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(loginViewModel: LoginViewModel) {
 
-    val email: String by loginViewModel.email.collectAsState(initial = "")
-    val password: String by loginViewModel.password.collectAsState(initial = "")
+    val email: String by loginViewModel.email.collectAsState(initial = "reni@prueba.com")
+    val password: String by loginViewModel.password.collectAsState(initial = "*Reni1234")
     val enableCreateAccount by loginViewModel.buttonEnabled.collectAsState(false)
+    val alertDialogError by loginViewModel.alertDialogError.collectAsState(false)
 
     Column(
         Modifier
@@ -86,12 +87,12 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
             Or()
             Spacer(Modifier.size(4.dp))
             CreateAccount(enableCreateAccount, loginViewModel)
-
+            if (alertDialogError) {
+                ErrorDialog(loginViewModel)
+            }
         }
-
     }
 }
-
 @Composable
 fun IncreaseFit() {
     Image(
@@ -204,9 +205,6 @@ fun Login(
     enableCreateAccount: Boolean,
     loginViewModel: LoginViewModel
 ) {
-
-    val alertDialogError by loginViewModel.alertDialogError.collectAsState(false)
-
     Button(
         onClick = { loginViewModel.onLogin() },
         enabled = enableCreateAccount,
@@ -219,40 +217,6 @@ fun Login(
         elevation = ButtonDefaults.buttonElevation(4.dp)
     ) {
         Text(text = "Login", fontSize = 23.sp)
-    }
-    if (alertDialogError) {
-        AlertDialog(
-            onDismissRequest = {},
-            confirmButton = {
-                Button(
-                    onClick = { loginViewModel.confirmButton() },
-                    shape = RoundedCornerShape(25),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF793939)),
-                    elevation = ButtonDefaults.buttonElevation(8.dp)
-                ) {
-                    Text(text = "ACCEPT", color = Color.White)
-                }
-            },
-            icon = {
-                Image(
-                    painter = painterResource(id = R.drawable.error_icon),
-                    contentDescription = "Icon Error",
-                    modifier = Modifier.size(100.dp)
-                )
-            },
-            title = { Text(text = "ERROR", color = Color.Red, fontWeight = FontWeight.ExtraBold) },
-            text = {
-                Text(
-                    text = "''No se pudo autenticar al usuario. Asegúrate de que el correo esté " +
-                            "en el formato correcto (user@domin.com) y que la " +
-                            "contraseña tenga al menos 8 caracteres, incluyendo letra mayúscula, " +
-                            "número y símbolo especial.''",
-                    color = Color.DarkGray,
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Justify
-                )
-            }
-        )
     }
 }
 
@@ -298,5 +262,41 @@ fun CreateAccount(
     ) {
         Text(text = "Create Account", fontSize = 23.sp)
     }
+}
+
+@Composable
+fun ErrorDialog(loginViewModel: LoginViewModel) {
+    AlertDialog(
+        onDismissRequest = {},
+        confirmButton = {
+            Button(
+                onClick = { loginViewModel.confirmButton() },
+                shape = RoundedCornerShape(25),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF793939)),
+                elevation = ButtonDefaults.buttonElevation(8.dp)
+            ) {
+                Text(text = "ACCEPT", color = Color.White)
+            }
+        },
+        icon = {
+            Image(
+                painter = painterResource(id = R.drawable.error_icon),
+                contentDescription = "Icon Error",
+                modifier = Modifier.size(100.dp)
+            )
+        },
+        title = { Text(text = "ERROR", color = Color.Red, fontWeight = FontWeight.ExtraBold) },
+        text = {
+            Text(
+                text = "''No se pudo autenticar al usuario. Asegúrate de que el correo esté " +
+                        "en el formato correcto (user@domin.com) y que la " +
+                        "contraseña tenga al menos 8 caracteres, incluyendo letra mayúscula, " +
+                        "número y símbolo especial.''",
+                color = Color.DarkGray,
+                fontSize = 16.sp,
+                textAlign = TextAlign.Justify
+            )
+        }
+    )
 }
 

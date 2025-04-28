@@ -10,6 +10,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.cursokotlin.entrenamientosconroom.ui.Navigator
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,12 +18,15 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor() : ViewModel() {
+class LoginViewModel @Inject constructor(
+    private val auth: FirebaseAuth,
+    private val analytics: FirebaseAnalytics
+) : ViewModel() {
 
     private val _image = MutableStateFlow<ImageVector>(Icons.Filled.Visibility)
     val image: StateFlow<ImageVector> = _image
 
-    private val _password = MutableStateFlow<String>("12345678")
+    private val _password = MutableStateFlow<String>("*Reni1234")
     val password: StateFlow<String> = _password
 
     private val _email = MutableStateFlow<String>("reni@prueba.com")
@@ -58,27 +62,30 @@ class LoginViewModel @Inject constructor() : ViewModel() {
 
     fun onLogin() {
         if (_email.value.isNotEmpty() && _password.value.isNotEmpty())
-            FirebaseAuth.getInstance()
+            auth
                 .signInWithEmailAndPassword(_email.value, _password.value)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        _navigator.value = Navigator.Screen2
+                        onLog()
                         Log.d("LoginViewModel", "Cuenta logeada exitosamente.")
                     } else {
-                        Log.e("LoginViewModel", "Error al logear la cuenta: ${it.exception?.message}")
+                        Log.e(
+                            "LoginViewModel",
+                            "Error al logear la cuenta: ${it.exception?.message}"
+                        )
                         _alertDialogError.value = true
                     }
                 }
     }
 
-    fun onCreateAccount(){
+    fun onCreateAccount() {
         if (_email.value.isNotEmpty() && _password.value.isNotEmpty())
-            FirebaseAuth.getInstance()
+            auth
                 .createUserWithEmailAndPassword(_email.value, _password.value)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
+                        onLog()
                         Log.d("LoginViewModel", "Cuenta creada exitosamente.")
-                        _navigator.value = Navigator.Screen2
                     } else {
                         Log.e("LoginViewModel", "Error al crear cuenta: ${it.exception?.message}")
                         _alertDialogError.value = true
@@ -86,16 +93,17 @@ class LoginViewModel @Inject constructor() : ViewModel() {
                 }
     }
 
-    fun unLog (){
-        FirebaseAuth.getInstance().signOut()
-        _navigator.value = Navigator.Screen1
-        Log.d("LoginViewModel", "Cuenta cerrada exitosamente.")
-
+    fun onLog(){
+        _navigator.value = Navigator.Screen2
     }
 
-    fun confirmButton(){
-        _email.value = ""
-        _password.value = ""
+    fun unLog() {
+        auth.signOut()
+        _navigator.value = Navigator.Screen1
+        Log.d("LoginViewModel", "Cuenta cerrada exitosamente.")
+    }
+
+    fun confirmButton() {
         _alertDialogError.value = false
     }
 }
