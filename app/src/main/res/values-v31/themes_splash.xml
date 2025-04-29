@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.App.Starting" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Fondo del splash -->
+        <item name="android:windowSplashScreenBackground">@color/white</item>
+
+        <!-- Imagen animada del splash -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/uplazy_splash_reni</item>
+
+        <item name="android:windowSplashScreenBrandingImage">@drawable/marca</item>
+
+        <!-- Duración de la animación en milisegundos -->
+        <item name="android:windowSplashScreenAnimationDuration">500</item>
+
+        <!-- Sin fondo adicional detrás del icono -->
+        <item name="android:windowSplashScreenIconBackgroundColor">@null</item>
+
+        <!-- Tema normal que se aplicará después del splash -->
+        <item name="postSplashScreenTheme">@style/Theme.EntrenamientosConRoom</item>
+    </style>
+</resources>

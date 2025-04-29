@@ -25,13 +25,12 @@ fun NavigatorWorkout(
         when (destination) {
             is Navigator.Screen2 -> {
                 navigatorController.navigate(Routes.Screen2.route) {
-                    popUpTo(Routes.Screen1.route) { inclusive = true }// Para limpiar stack
+                    popUpTo(0) { inclusive = true }// Para limpiar stack
                 }
             }
-
             is Navigator.Screen1 -> {
                 navigatorController.navigate(Routes.Screen1.route) {
-                    popUpTo(Routes.Screen2.route) { inclusive = true }
+                    popUpTo(0) { inclusive = true }
                 }
             }
         }

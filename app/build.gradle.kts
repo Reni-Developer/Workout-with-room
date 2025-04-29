@@ -83,6 +83,9 @@ dependencies {
     //Navigator Compose
     implementation (libs.androidx.navigation.compose)
 
+    //SplashScreen
+    implementation (libs.androidx.core.splashscreen)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

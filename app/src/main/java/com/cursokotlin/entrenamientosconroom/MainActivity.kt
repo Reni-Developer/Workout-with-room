@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.cursokotlin.entrenamientosconroom.data.firebase.AnalyticsService
 import com.cursokotlin.entrenamientosconroom.ui.NavigatorWorkout
 import com.cursokotlin.entrenamientosconroom.ui.theme.EntrenamientosConRoomTheme
@@ -34,6 +35,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+         installSplashScreen()
+
         enableEdgeToEdge()
         setContent {
             EntrenamientosConRoomTheme {
@@ -49,16 +52,16 @@ class MainActivity : ComponentActivity() {
     }
     override fun onStart() {
         super.onStart()
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            loginViewModel.onLog()
-            Log.d("LoginMainActivity", "Cuenta logeada previamente.")
-        }
         analyticsService.logEvent(
             eventName = "InitApp",
             params = mapOf(
                 "message" to "Integración de Firebase completa"
             )
         )
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            Log.d("LoginMainActivity", "Cuenta logeada previamente.")
+            loginViewModel.onLog()
+        }
     }
 }
