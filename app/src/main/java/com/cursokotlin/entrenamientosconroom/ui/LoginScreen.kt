@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -48,6 +49,13 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
     val password: String by loginViewModel.password.collectAsState(initial = "*Reni1234")
     val enableCreateAccount by loginViewModel.buttonEnabled.collectAsState(false)
     val alertDialogError by loginViewModel.alertDialogError.collectAsState(false)
+    val alertDialogErrorG by loginViewModel.alertDialogErrorG.collectAsState(false)
+    val textError = "''No se pudo autenticar al usuario. Asegúrate de que el correo esté " +
+                                            "en el formato correcto (user@domin.com) y que la " +
+                                            "contraseña tenga al menos 8 caracteres, incluyendo letra mayúscula, " +
+                                            "número y símbolo especial.''"
+    val textErrorG = "No se pudo autenticar tu cuenta de Google. Por favor, verifica que hayas " +
+                                                "seleccionado la cuenta correcta e intenta nuevamente."
 
     Column(
         Modifier
@@ -71,7 +79,7 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
         ) {
             SignIn()
             Spacer(Modifier.size(20.dp))
-            LoginGoogle()
+            LoginGoogle(loginViewModel)
             Spacer(Modifier.size(15.dp))
             LoginFacebook()
         }
@@ -88,11 +96,15 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
             Spacer(Modifier.size(4.dp))
             CreateAccount(enableCreateAccount, loginViewModel)
             if (alertDialogError) {
-                ErrorDialog(loginViewModel)
+                ErrorDialog(textError, loginViewModel)
+            }
+            if (alertDialogErrorG) {
+                ErrorDialog(textErrorG, loginViewModel)
             }
         }
     }
 }
+
 @Composable
 fun IncreaseFit() {
     Image(
@@ -185,10 +197,13 @@ fun SignIn() {
 }
 
 @Composable
-fun LoginGoogle() {
+fun LoginGoogle(loginViewModel: LoginViewModel) {
+    val activity = LocalContext.current
     Image(
         painter = painterResource(id = R.drawable.logo_google), contentDescription = "Google",
-        Modifier.size(40.dp)
+        Modifier
+            .size(40.dp)
+            .clickable { loginViewModel.onGoogleSignIn(activity) }
     )
 }
 
@@ -206,7 +221,7 @@ fun Login(
     loginViewModel: LoginViewModel
 ) {
     Button(
-        onClick = { loginViewModel.onLogin() },
+        onClick = { loginViewModel.onEmailAndPassSignIn() },
         enabled = enableCreateAccount,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF446BFD),
@@ -246,6 +261,7 @@ fun Or() {
 @Composable
 fun CreateAccount(
     enableCreateAccount: Boolean,
+
     loginViewModel: LoginViewModel
 ) {
 
@@ -265,9 +281,9 @@ fun CreateAccount(
 }
 
 @Composable
-fun ErrorDialog(loginViewModel: LoginViewModel) {
+fun ErrorDialog(textError: String, loginViewModel: LoginViewModel) {
     AlertDialog(
-        onDismissRequest = {},
+        onDismissRequest = {loginViewModel.confirmButton()},
         confirmButton = {
             Button(
                 onClick = { loginViewModel.confirmButton() },
@@ -288,10 +304,7 @@ fun ErrorDialog(loginViewModel: LoginViewModel) {
         title = { Text(text = "ERROR", color = Color.Red, fontWeight = FontWeight.ExtraBold) },
         text = {
             Text(
-                text = "''No se pudo autenticar al usuario. Asegúrate de que el correo esté " +
-                        "en el formato correcto (user@domin.com) y que la " +
-                        "contraseña tenga al menos 8 caracteres, incluyendo letra mayúscula, " +
-                        "número y símbolo especial.''",
+                text = textError,
                 color = Color.DarkGray,
                 fontSize = 16.sp,
                 textAlign = TextAlign.Justify
@@ -299,4 +312,3 @@ fun ErrorDialog(loginViewModel: LoginViewModel) {
         }
     )
 }
-

@@ -22,6 +22,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Firma automática con debug.keystore
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -61,11 +64,11 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation (libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     //Retrofit 2 y Gson
-    implementation (libs.converter.gson)
-    implementation (libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.retrofit)
 
     //Dagger Hilt (DI)
     implementation(libs.hilt.android)
@@ -77,14 +80,19 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.analytics)
 
+    //Google Auth
+    implementation("androidx.credentials:credentials:1.5.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
     //Icons Extended
     implementation(libs.androidx.material.icons.extended)
 
     //Navigator Compose
-    implementation (libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation.compose)
 
     //SplashScreen
-    implementation (libs.androidx.core.splashscreen)
+    implementation(libs.androidx.core.splashscreen)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

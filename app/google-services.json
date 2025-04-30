@@ -12,7 +12,20 @@
           "package_name": "com.cursokotlin.entrenamientosconroom"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "749104131631-5corivolu4o8n2486j834gf6daol26j4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cursokotlin.entrenamientosconroom",
+            "certificate_hash": "84cba080d89c35d1ec5d7787ff6ec75425936110"
+          }
+        },
+        {
+          "client_id": "749104131631-o9f390u4h1r7vpv13islskrh9j13cmq1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD-yge02bBE2fZw5ftqxbChNYTDNzafAs8"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "749104131631-7doakautae810vj6dt16fukppi5gctf2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -1,6 +1,7 @@
 package com.cursokotlin.entrenamientosconroom.core
 
 import android.content.Context
+import androidx.credentials.CredentialManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -15,6 +16,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)//Para que viva mientras la app viva
 class FirebaseModule {
+
     @Singleton
     @Provides
     fun provideFirebaseAuth(): FirebaseAuth {
@@ -25,6 +27,12 @@ class FirebaseModule {
     @Provides
     fun provideFirebaseAnalytics(@ApplicationContext context: Context): FirebaseAnalytics {
         return FirebaseAnalytics.getInstance(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideCredentialManager(@ApplicationContext context: Context): CredentialManager {
+        return CredentialManager.create(context)
     }
 
 }

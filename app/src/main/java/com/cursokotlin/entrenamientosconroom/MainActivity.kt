@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.credentials.CredentialManager
 import com.cursokotlin.entrenamientosconroom.data.firebase.AnalyticsService
 import com.cursokotlin.entrenamientosconroom.ui.NavigatorWorkout
 import com.cursokotlin.entrenamientosconroom.ui.theme.EntrenamientosConRoomTheme
@@ -44,7 +45,8 @@ class MainActivity : ComponentActivity() {
                     NavigatorWorkout(
                         modifier = Modifier.padding(innerPadding),
                         trainingViewModel = trainingViewModel,
-                        loginViewModel = loginViewModel
+                        loginViewModel = loginViewModel,
+                        auth = auth
                     )
                 }
             }

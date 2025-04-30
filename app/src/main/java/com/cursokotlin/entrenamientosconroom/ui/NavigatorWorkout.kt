@@ -10,12 +10,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cursokotlin.entrenamientosconroom.ui.viewmodel.LoginViewModel
 import com.cursokotlin.entrenamientosconroom.ui.viewmodel.TrainingViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun NavigatorWorkout(
     modifier: Modifier = Modifier,
     trainingViewModel: TrainingViewModel,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    auth: FirebaseAuth
 ) {
 
     val navigatorController = rememberNavController()
@@ -28,6 +30,7 @@ fun NavigatorWorkout(
                     popUpTo(0) { inclusive = true }// Para limpiar stack
                 }
             }
+
             is Navigator.Screen1 -> {
                 navigatorController.navigate(Routes.Screen1.route) {
                     popUpTo(0) { inclusive = true }
@@ -38,7 +41,12 @@ fun NavigatorWorkout(
 
     NavHost(
         navController = navigatorController,
-        startDestination = Routes.Screen1.route,
+        startDestination =
+            if (auth.currentUser != null) {
+                Routes.Screen2.route
+            } else {
+                Routes.Screen1.route
+            },
         modifier = modifier
     ) {
         composable(route = Routes.Screen1.route) {
