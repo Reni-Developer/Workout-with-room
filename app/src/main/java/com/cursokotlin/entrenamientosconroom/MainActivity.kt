@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
             Log.d("LoginMainActivity", "Cuenta logeada previamente.")
-            loginViewModel.onLog()
+            loginViewModel.signIn()
         }
     }
 }

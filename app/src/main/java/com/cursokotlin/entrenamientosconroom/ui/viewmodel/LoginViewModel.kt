@@ -30,7 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val auth: FirebaseAuth,
-    private val  credentialManager: CredentialManager
+    private val credentialManager: CredentialManager
 ) : ViewModel() {
 
     private val _image = MutableStateFlow<ImageVector>(Icons.Filled.Visibility)
@@ -57,6 +57,8 @@ class LoginViewModel @Inject constructor(
     private val _alertDialogErrorG = MutableStateFlow<Boolean>(false)
     val alertDialogErrorG: StateFlow<Boolean> = _alertDialogErrorG
 
+    private var _attemptsToReceiveToken = MutableStateFlow<Int>(2)
+
     fun onPasswordVisibilityChanged(passwordVisibility: Boolean) {
         _passwordVisibility.value = !passwordVisibility
         _image.value = if (passwordVisibility) {
@@ -79,7 +81,7 @@ class LoginViewModel @Inject constructor(
                 .signInWithEmailAndPassword(_email.value, _password.value)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        onLog()
+                        signIn()
                         Log.d("LoginViewModel", "Cuenta logeada exitosamente.")
                     } else {
                         Log.e(
@@ -97,7 +99,7 @@ class LoginViewModel @Inject constructor(
                 .createUserWithEmailAndPassword(_email.value, _password.value)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        onLog()
+                        signIn()
                         Log.d("LoginViewModel", "Cuenta creada exitosamente.")
                     } else {
                         Log.e("LoginViewModel", "Error al crear cuenta: ${it.exception?.message}")
@@ -124,16 +126,16 @@ class LoginViewModel @Inject constructor(
                     val credential = GoogleIdTokenCredential.createFrom(rawCredential.data)
                     val idToken = credential.idToken
                     if (idToken.isNotEmpty()) {
+                        _attemptsToReceiveToken.value = 2
                         firebaseAuthWithGoogle(idToken)
                     } else {
-                        Log.e("LoginViewModel", "ID Token está vacío o nulo")
+                        attempts(activity)
                     }
                 } else {
-                    Log.e("LoginViewModel", "ID Token es nulo")
+                    attempts(activity)
                 }
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Error en googleSignIn: ${e.message}")
-                createErrorG()
             }
         }
     }
@@ -144,7 +146,7 @@ class LoginViewModel @Inject constructor(
             .addOnCompleteListener {
                 if (it.isSuccessful) {
                     Log.d("LoginViewModel", "signInWithCredential:success")
-                    onLog()
+                    signIn()
                 } else {
                     Log.w("LoginViewModel", "signInWithCredential:failure", it.exception)
                     createErrorG()
@@ -152,11 +154,23 @@ class LoginViewModel @Inject constructor(
             }
     }
 
-    fun onLog() {
+    fun attempts (activity: Context){
+        if (_attemptsToReceiveToken.value > 0) {
+            _attemptsToReceiveToken.value -= 1
+            Log.e("LoginViewModel", "Intento No. ${2 - _attemptsToReceiveToken.value} Fallido")
+            onGoogleSignIn(activity)
+        } else {
+            _attemptsToReceiveToken.value = 2
+            Log.e("LoginViewModel", "ID Token es nulo")
+            createErrorG()
+        }
+    }
+
+    fun signIn() {
         _navigator.value = Navigator.Screen2
     }
 
-    fun unLog() {
+    fun signOut() {
         auth.signOut()
         viewModelScope.launch {
             try {

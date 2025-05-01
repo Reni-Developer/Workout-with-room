@@ -3,6 +3,7 @@
 package com.cursokotlin.entrenamientosconroom.ui
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -56,6 +60,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cursokotlin.entrenamientosconroom.R
 import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutWithSetsAndExercises
 import com.cursokotlin.entrenamientosconroom.data.networkAPI.UserDataModel
 import com.cursokotlin.entrenamientosconroom.ui.viewmodel.LoginViewModel
@@ -78,6 +83,7 @@ fun TrainingScreen(
     val target by trainingViewModel.target.observeAsState(0)
     val difficulty by trainingViewModel.difficulty.observeAsState(0)
     val muscles by trainingViewModel.muscles.observeAsState(listOf())
+    val singOutDialogState by trainingViewModel.singOutDialogState.observeAsState(false)
 
     val currentUserData = UserDataModel(
         sex = sex,
@@ -97,6 +103,8 @@ fun TrainingScreen(
     val difficulties = listOf("Easy", "Medium", "Hard")
     val difficultiesIcon = com.cursokotlin.entrenamientosconroom.R.drawable.ic_difficulty
 
+    val textSingOut = "''¿Está seguro de que desea cerrar sesión en su cuenta de usuario?''"
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -104,7 +112,7 @@ fun TrainingScreen(
             .padding(horizontal = 8.dp)
     ) {
 
-        SingOut(loginViewModel)
+        SingOut(trainingViewModel)
         Spacer(Modifier.height(8.dp))
 
         Row(Modifier.weight(0.35f)) {
@@ -131,19 +139,23 @@ fun TrainingScreen(
 
         UpdateTraining(Modifier.weight(0.12f), trainingViewModel, currentUserData)
         Spacer(modifier = Modifier.height(8.dp))
+
+        if (singOutDialogState) {
+            SingOutDialog(textSingOut, trainingViewModel, loginViewModel)
+        }
     }
 }
 
 @Composable
-fun SingOut(loginViewModel: LoginViewModel) {
+fun SingOut(trainingViewModel: TrainingViewModel) {
     Card(
         Modifier
             .clickable {
-                loginViewModel.unLog()
+                trainingViewModel.openSingOutDialog()
             }
             .fillMaxWidth(),
         shape = RoundedCornerShape(20),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF485C91)),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -157,7 +169,7 @@ fun SingOut(loginViewModel: LoginViewModel) {
             )
             Text(
                 text = "Sing Out",
-                color = Color.Black,
+                color = Color.White,
                 fontSize = 18.sp
             )
             HorizontalDivider(
@@ -474,14 +486,14 @@ fun SelectDropdownMenu(
                         .size(40.dp)
                         .align(Alignment.CenterVertically),
                     tint = when (selected) {
-                        "Spanish" -> Color.Blue
-                        "English" -> Color.Green
-                        "Gain muscle" -> Color.Red
-                        "Lose weight" -> Color.Green
-                        "Maintain or improve health" -> Color.Yellow
-                        "Easy" -> Color.Yellow
-                        "Medium" -> Color.Green
-                        "Hard" -> Color.Red
+                        "Spanish" -> Color(0xFF475B90)
+                        "English" -> Color(0x9E475B90)
+                        "Gain muscle" -> Color(0xFF475B90)
+                        "Lose weight" -> Color(0xA4475B90)
+                        "Maintain or improve health" -> Color(0x3B475B90)
+                        "Easy" -> Color(0x3B475B90)
+                        "Medium" -> Color(0xA4475B90)
+                        "Hard" -> Color(0xFF475B90)
                         else -> Color.Black
                     }
                 )
@@ -515,17 +527,9 @@ fun SelectDropdownMenu(
                         selected = it
                         expanded = false
                         when (icon) {
-                            com.cursokotlin.entrenamientosconroom.R.drawable.ic_translate -> trainingViewModel.onChangeLanguage(
-                                selectedIndex
-                            )
-
-                            com.cursokotlin.entrenamientosconroom.R.drawable.ic_assignment -> trainingViewModel.onChangeTarget(
-                                selectedIndex
-                            )
-
-                            com.cursokotlin.entrenamientosconroom.R.drawable.ic_difficulty -> trainingViewModel.onChangeDifficulty(
-                                selectedIndex
-                            )
+                            R.drawable.ic_translate -> trainingViewModel.onChangeLanguage(selectedIndex)
+                            R.drawable.ic_assignment -> trainingViewModel.onChangeTarget(selectedIndex)
+                            R.drawable.ic_difficulty -> trainingViewModel.onChangeDifficulty(selectedIndex)
                         }
                         Log.d("DropdownMenu", "option selected: $options")
                         Log.d("DropdownMenu", "Index selected: $selected")
@@ -678,6 +682,46 @@ fun TrainingSpacer(
             }
         }
     }
+}
+
+@Composable
+fun SingOutDialog(
+    textError: String,
+    trainingViewModel: TrainingViewModel,
+    loginViewModel: LoginViewModel
+) {
+    AlertDialog(
+        onDismissRequest = { trainingViewModel.closeSingOutDialog() },
+        confirmButton = {
+            Button(
+                onClick = {
+                    trainingViewModel.closeSingOutDialog()
+                    loginViewModel.signOut()
+                },
+                shape = RoundedCornerShape(25),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF04527C)),
+                elevation = ButtonDefaults.buttonElevation(8.dp)
+            ) {
+                Text(text = "ACCEPT", color = Color.White)
+            }
+        },
+        icon = {
+            Image(
+                painter = painterResource(id = R.drawable.user),
+                contentDescription = "Icon Error",
+                modifier = Modifier.size(100.dp)
+            )
+        },
+        title = { Text(text = "Sing Out", color = Color(0xFF04527C), fontWeight = FontWeight.ExtraBold) },
+        text = {
+            Text(
+                text = textError,
+                color = Color.DarkGray,
+                fontSize = 18.sp,
+                textAlign = TextAlign.Justify
+            )
+        }
+    )
 }
 
 

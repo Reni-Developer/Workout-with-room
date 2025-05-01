@@ -1,5 +1,6 @@
 package com.cursokotlin.entrenamientosconroom.ui.viewmodel
 
+import android.text.BoringLayout
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -49,6 +50,9 @@ class TrainingViewModel @Inject constructor(
 
     private val _muscles = MutableLiveData<List<Int>>(listOf())
     val muscles: LiveData<List<Int>> get() = _muscles
+
+    private val _singOutDialogState = MutableLiveData<Boolean>(false)
+    val singOutDialogState: LiveData<Boolean> get() = _singOutDialogState
 
     val _musclesById = MutableLiveData<List<CheckInfo>>(
         listOf(
@@ -108,6 +112,14 @@ class TrainingViewModel @Inject constructor(
 
     fun onChangeDifficulty(difficulty: Int) {
         _difficulty.value = difficulty
+    }
+
+    fun openSingOutDialog(){
+        _singOutDialogState.value = true
+    }
+
+    fun closeSingOutDialog(){
+        _singOutDialogState.value = false
     }
 
     fun loadWorkout(userData: UserDataModel) {
