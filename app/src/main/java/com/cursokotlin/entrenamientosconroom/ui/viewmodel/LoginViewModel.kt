@@ -49,6 +49,9 @@ class LoginViewModel @Inject constructor(
     private val _buttonEnabled = MutableStateFlow<Boolean>(false)
     val buttonEnabled: StateFlow<Boolean> = _buttonEnabled
 
+    private val _stateFirstSignIn = MutableStateFlow<Boolean>(true)
+    val stateFirstSignIn: StateFlow<Boolean> = _stateFirstSignIn
+
     private val _navigator = MutableLiveData<Navigator>(Navigator.Screen1)
     val navigator: LiveData<Navigator> = _navigator
 
@@ -128,7 +131,10 @@ class LoginViewModel @Inject constructor(
                         firebaseAuthWithGoogle(idToken)
                     } else { Log.e("LoginViewModel", "Token vacío") }
                 } else { Log.e("LoginViewModel", "No coincide la credencial") }
-            } catch (e: Exception) { Log.e("LoginViewModel", "Error en googleSignIn: ${e.message}") }
+            } catch (e: Exception) {
+                _stateFirstSignIn.value = false
+                Log.e("LoginViewModel", "Error en googleSignIn: ${e.message}")
+            }
         }
     }
 
@@ -176,10 +182,12 @@ class LoginViewModel @Inject constructor(
     }
 
     fun signIn() {
+        _stateFirstSignIn.value = false
         _navigator.value = Navigator.Screen2
     }
 
     fun signOut() {
+        _stateFirstSignIn.value = true
         auth.signOut()
         viewModelScope.launch {
             try {

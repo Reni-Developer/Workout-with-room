@@ -50,6 +50,7 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
     val email: String by loginViewModel.email.collectAsState(initial = "reni@prueba.com")
     val password: String by loginViewModel.password.collectAsState(initial = "*Reni1234")
     val enableCreateAccount by loginViewModel.buttonEnabled.collectAsState(false)
+    val stateFirstSignIn by loginViewModel.stateFirstSignIn.collectAsState(true)
     val errorType by loginViewModel.errorType.collectAsState(99)
 
     val activity = LocalContext.current as Activity
@@ -80,7 +81,9 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
             .padding(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        loginViewModel.firstSignIn(activity)
+        if (stateFirstSignIn){
+            loginViewModel.firstSignIn(activity)
+        }
 
         Spacer(Modifier.size(100.dp))
         IncreaseFit()
