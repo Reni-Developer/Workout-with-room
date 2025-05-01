@@ -1,5 +1,7 @@
 package com.cursokotlin.entrenamientosconroom.ui
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,14 +50,29 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
     val email: String by loginViewModel.email.collectAsState(initial = "reni@prueba.com")
     val password: String by loginViewModel.password.collectAsState(initial = "*Reni1234")
     val enableCreateAccount by loginViewModel.buttonEnabled.collectAsState(false)
-    val alertDialogError by loginViewModel.alertDialogError.collectAsState(false)
-    val alertDialogErrorG by loginViewModel.alertDialogErrorG.collectAsState(false)
-    val textError = "''No se pudo autenticar al usuario. Asegúrate de que el correo esté " +
-                                            "en el formato correcto (user@domin.com) y que la " +
-                                            "contraseña tenga al menos 8 caracteres, incluyendo letra mayúscula, " +
-                                            "número y símbolo especial.''"
+    val errorType by loginViewModel.errorType.collectAsState(99)
+
+    val activity = LocalContext.current as Activity
+
+    val textError0 =
+        "''La cuenta a la que intenta acceder no está registrada. Por favor, inicie sesión " +
+                "con una cuenta existente o cree una nueva si aún no dispone de una. Asegúrese " +
+                "de que el correo electrónico esté en un formato válido (por ejemplo, " +
+                "usuario@dominio.com) y que la contraseña contenga al menos 8 caracteres, " +
+                "incluyendo una letra mayúscula, un número y un símbolo especial.''"
+
+    val textError1 =
+        "''La cuenta que intenta crear ya ha sido registrada. Por favor, inicie sesión " +
+                "con una cuenta existente o utilice una dirección de correo diferente para " +
+                "crear una nueva. Asegúrese de que el correo electrónico esté en un formato " +
+                "válido (por ejemplo, usuario@dominio.com) y que la contraseña contenga al " +
+                "menos 8 caracteres, incluyendo una letra mayúscula, un número y un símbolo especial.''"
+
     val textErrorG = "No se pudo autenticar tu cuenta de Google. Por favor, verifica que hayas " +
-                                                "seleccionado la cuenta correcta e intenta nuevamente."
+            "seleccionado la cuenta correcta e intenta nuevamente."
+
+    val textErrorC = "Autenticación con credenciales fallidas. Por favor, verifica que hayas " +
+            "seleccionado la cuenta correcta e intenta nuevamente."
 
     Column(
         Modifier
@@ -63,6 +80,7 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
             .padding(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        loginViewModel.firstSignIn(activity)
 
         Spacer(Modifier.size(100.dp))
         IncreaseFit()
@@ -79,7 +97,7 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
         ) {
             SignIn()
             Spacer(Modifier.size(20.dp))
-            LoginGoogle(loginViewModel)
+            LoginGoogle(loginViewModel, activity)
             Spacer(Modifier.size(15.dp))
             LoginFacebook()
         }
@@ -95,12 +113,14 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
             Or()
             Spacer(Modifier.size(4.dp))
             CreateAccount(enableCreateAccount, loginViewModel)
-            if (alertDialogError) {
-                ErrorDialog(textError, loginViewModel)
+
+            when (errorType) {
+                0 -> ErrorDialog(textError0, loginViewModel)
+                1 -> ErrorDialog(textError1, loginViewModel)
+                2 -> ErrorDialog(textErrorG, loginViewModel)
+                3 -> ErrorDialog(textErrorC, loginViewModel)
             }
-            if (alertDialogErrorG) {
-                ErrorDialog(textErrorG, loginViewModel)
-            }
+
         }
     }
 }
@@ -196,14 +216,15 @@ fun SignIn() {
     Text(text = "Sign In with:", color = Color(0xFFA2A2A5))
 }
 
+@SuppressLint("ContextCastToActivity")
 @Composable
-fun LoginGoogle(loginViewModel: LoginViewModel) {
-    val activity = LocalContext.current
+fun LoginGoogle(loginViewModel: LoginViewModel, activity: Activity) {
+
     Image(
         painter = painterResource(id = R.drawable.logo_google), contentDescription = "Google",
         Modifier
             .size(40.dp)
-            .clickable { loginViewModel.onGoogleSignIn(activity) }
+            .clickable { loginViewModel.signInWithGoogleButton(activity) }
     )
 }
 
@@ -283,7 +304,7 @@ fun CreateAccount(
 @Composable
 fun ErrorDialog(textError: String, loginViewModel: LoginViewModel) {
     AlertDialog(
-        onDismissRequest = {loginViewModel.confirmButton()},
+        onDismissRequest = { loginViewModel.confirmButton() },
         confirmButton = {
             Button(
                 onClick = { loginViewModel.confirmButton() },

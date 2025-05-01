@@ -705,6 +705,17 @@ fun SingOutDialog(
                 Text(text = "ACCEPT", color = Color.White)
             }
         },
+        Modifier.size(320.dp),
+        dismissButton = {
+            Button(
+                onClick = { trainingViewModel.closeSingOutDialog() },
+                shape = RoundedCornerShape(25),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF04527C)),
+                elevation = ButtonDefaults.buttonElevation(8.dp)
+            ) {
+                Text(text = "CANCEL", color = Color.White)
+            }
+        },
         icon = {
             Image(
                 painter = painterResource(id = R.drawable.user),
