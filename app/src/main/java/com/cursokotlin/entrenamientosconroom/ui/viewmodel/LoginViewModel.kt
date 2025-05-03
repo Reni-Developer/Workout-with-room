@@ -107,11 +107,11 @@ class LoginViewModel @Inject constructor(
                 }
     }
 
-    fun firstSignIn(activity: Activity) {
+    fun firstSignIn(activity: Activity?) {
         //Solicitud de inicio de seción de Google con GetGoogleIdOption
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
-            .setServerClientId(activity.getString(R.string.default_web_client_id))
+            .setServerClientId(activity!!.getString(R.string.default_web_client_id))
             .setNonce("")
             .build()
         //Solicitud de credenciales
@@ -119,9 +119,26 @@ class LoginViewModel @Inject constructor(
             .addCredentialOption(googleIdOption)
             .build()
         //Paso de solicitud para obtener credenciales, para recuperar las disponibles del user
+        credentialAndToken (activity, request)
+    }
+
+    fun signInWithGoogleButton(activity: Activity?) {
+        //Solicitud de inicio de seción de Google con GetSignInWithGoogleOption
+        val signInWithGoogleOption = GetSignInWithGoogleOption
+            .Builder(serverClientId = activity!!.getString(R.string.default_web_client_id))
+            .build()
+
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(signInWithGoogleOption)
+            .build()
+
+        credentialAndToken (activity, request)
+    }
+
+    fun credentialAndToken (activity: Activity?, request: GetCredentialRequest){
         viewModelScope.launch {
             try {
-                val result = credentialManager.getCredential(activity, request)
+                val result = credentialManager.getCredential(activity!!, request)
                 val rawCredential = result.credential
                 if (rawCredential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     val credential =
@@ -133,34 +150,6 @@ class LoginViewModel @Inject constructor(
                 } else { Log.e("LoginViewModel", "No coincide la credencial") }
             } catch (e: Exception) {
                 _stateFirstSignIn.value = false
-                Log.e("LoginViewModel", "Error en googleSignIn: ${e.message}")
-            }
-        }
-    }
-
-    fun signInWithGoogleButton(activity: Activity) {
-        //Solicitud de inicio de seción de Google con GetSignInWithGoogleOption
-        val signInWithGoogleOption = GetSignInWithGoogleOption
-            .Builder(serverClientId = activity.getString(R.string.default_web_client_id))
-            .build()
-
-        val request = GetCredentialRequest.Builder()
-            .addCredentialOption(signInWithGoogleOption)
-            .build()
-
-        viewModelScope.launch {
-            try {
-                val result = credentialManager.getCredential(activity, request)
-                val rawCredential = result.credential
-                if (rawCredential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                    val credential =
-                        GoogleIdTokenCredential.createFrom(rawCredential.data)
-                    val idToken = credential.idToken
-                    if (idToken.isNotEmpty()) {
-                        firebaseAuthWithGoogle(idToken)
-                    } else { Log.e("LoginViewModel", "Token vacío") }
-                } else { Log.e("LoginViewModel", "No coincide la credencial") }
-            } catch (e: Exception) {
                 Log.e("LoginViewModel", "Error en googleSignIn: ${e.message}")
             }
         }
@@ -189,18 +178,22 @@ class LoginViewModel @Inject constructor(
     fun signOut() {
         _stateFirstSignIn.value = true
         auth.signOut()
-        viewModelScope.launch {
-            try {
-                val clearRequest = ClearCredentialStateRequest()
-                credentialManager.clearCredentialState(clearRequest)
-                Log.d("LoginViewModel", "Cuenta Google cerrada exitosamente.")
-            } catch (e: ClearCredentialException) {
-                Log.e("LoginViewModel", "Couldn't clear user credentials: ${e.localizedMessage}")
-            }
-        }
-
+        clearCredentials()
         _navigator.value = Navigator.Screen1
         Log.d("LoginViewModel", "Cuenta cerrada exitosamente.")
+    }
+
+    fun clearCredentials(){
+        viewModelScope.launch {
+            try {
+                //Elimina el estado local de sesión asociado a las credenciales
+                val clearRequest = ClearCredentialStateRequest()
+                credentialManager.clearCredentialState(clearRequest)
+                Log.d("LoginViewModel", "Credenciales eliminadas exitosamente.")
+            } catch (e: ClearCredentialException) {
+                Log.e("LoginViewModel", "No pudo eliminar las credenciales: ${e.localizedMessage}")
+            }
+        }
     }
 
     fun confirmButton() {

@@ -61,10 +61,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cursokotlin.entrenamientosconroom.R
+import com.cursokotlin.entrenamientosconroom.data.bd.Exercise
+import com.cursokotlin.entrenamientosconroom.data.bd.SetWithExercise
 import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutWithSetsAndExercises
 import com.cursokotlin.entrenamientosconroom.data.networkAPI.UserDataModel
 import com.cursokotlin.entrenamientosconroom.ui.viewmodel.LoginViewModel
 import com.cursokotlin.entrenamientosconroom.ui.viewmodel.TrainingViewModel
+import org.checkerframework.checker.units.qual.Time
 
 @Composable
 fun TrainingScreen(
@@ -84,6 +87,10 @@ fun TrainingScreen(
     val difficulty by trainingViewModel.difficulty.observeAsState(0)
     val muscles by trainingViewModel.muscles.observeAsState(listOf())
     val singOutDialogState by trainingViewModel.singOutDialogState.observeAsState(false)
+    val changeColorMaleSelected by trainingViewModel.changeColorMaleSelected.observeAsState(true)
+    val changeColorFemaleSelected by trainingViewModel.changeColorFemaleSelected.observeAsState(
+        false
+    )
 
     val currentUserData = UserDataModel(
         sex = sex,
@@ -97,13 +104,13 @@ fun TrainingScreen(
     )
 
     val languages = listOf("Spanish", "English")
-    val languageIcon = com.cursokotlin.entrenamientosconroom.R.drawable.ic_translate
+    val languageIcon = R.drawable.ic_translate
     val targets = listOf("Gain muscle", "Lose weight", "Maintain or improve health")
-    val targetsIcon = com.cursokotlin.entrenamientosconroom.R.drawable.ic_assignment
+    val targetsIcon = R.drawable.ic_assignment
     val difficulties = listOf("Easy", "Medium", "Hard")
-    val difficultiesIcon = com.cursokotlin.entrenamientosconroom.R.drawable.ic_difficulty
+    val difficultiesIcon = R.drawable.ic_difficulty
 
-    val textSingOut = "''¿Está seguro de que desea cerrar sesión en su cuenta de usuario?''"
+    val textSingOut = "''¿Está seguro que desea cerrar sesión en su cuenta de usuario?''"
 
     Column(
         modifier = modifier
@@ -115,14 +122,42 @@ fun TrainingScreen(
         SingOut(trainingViewModel)
         Spacer(Modifier.height(8.dp))
 
-        Row(Modifier.weight(0.35f)) {
-            TextFieldWorkout(Modifier.weight(1f), trainingViewModel, age, time, injuries)
+        Row(Modifier.weight(0.45f)) {
+            Card(
+                modifier = Modifier.weight(1f),
+                elevation = CardDefaults.cardElevation(8.dp),
+                colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
+            ) {
+                AgeTextField(Modifier.weight(1f), trainingViewModel, age)
+
+                TimeTextFile(Modifier.weight(1f), time, trainingViewModel)
+
+                InjureTextField(Modifier.weight(1f), injuries, trainingViewModel)
+            }
             Spacer(Modifier.width(8.dp))
             ConfigMuscles(Modifier.weight(1f), trainingViewModel)
         }
         Spacer(Modifier.height(8.dp))
 
-        SelectSex(trainingViewModel)
+        Row(Modifier.fillMaxWidth()) {
+            SelectSex(
+                Modifier.weight(1f),
+                changeColorMaleSelected,
+                changeSex = 1,
+                icon = R.drawable.ic_male,
+                description = "male",
+                trainingViewModel
+            )
+            Spacer(Modifier.size(8.dp))
+            SelectSex(
+                Modifier.weight(1f),
+                changeColorFemaleSelected,
+                changeSex = 0,
+                icon = R.drawable.ic_female,
+                description = "female",
+                trainingViewModel
+            )
+        }
         Spacer(Modifier.height(8.dp))
 
         SelectDropdownMenu(Modifier, languages, languageIcon, trainingViewModel)
@@ -215,179 +250,164 @@ data class CheckInfo(
     val id: Int? = null
 )
 
-
 @Composable
-fun TextFieldWorkout(
-    modifier: Modifier = Modifier,
-    trainingViewModel: TrainingViewModel,
-    currentAge: Int,
-    currentTime: Int,
-    currentInjure: String
-) {
+fun AgeTextField(modifier: Modifier, trainingViewModel: TrainingViewModel, currentAge: Int) {
+
     var ageInt by remember { mutableIntStateOf(0) }
     var ageString by remember { mutableStateOf("") }
-    var timeInt by remember { mutableIntStateOf(0) }
-    var timeString by remember { mutableStateOf("") }
-    var injure by remember { mutableStateOf("ninguna") }
 
-    Card(
+    TextField(
+        value = ageString,
+        onValueChange = {
+            ageString = it
+            if (ageString != "" && ageString.toIntOrNull() != null) ageInt = ageString.toInt()
+        },
         modifier = modifier,
-        elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
-    ) {
-        TextField(
-            value = ageString,
-            onValueChange = {
-                ageString = it
-                if (ageString != "" && ageString.toIntOrNull() != null) ageInt = ageString.toInt()
-            },
-            Modifier.weight(1f),
-            label = {
-                Text(text = "Your Age")
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(onDone = {
-                if (ageInt > 9 && ageInt < 100) trainingViewModel.onChangeAge(ageInt)
-            }),
-            singleLine = true,
-            maxLines = 1,
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = "",
-                    modifier = Modifier.clickable {
-                        if (ageInt > 9 && ageInt < 100)
-                            trainingViewModel.onChangeAge(ageInt)
-                    },
-                    tint = (if (ageInt == currentAge && ageInt != 0) Color.Blue
-                    else Color.Black)
-                )
-            },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFFC9C9C9),
-                unfocusedContainerColor = Color(0xFFFBFBFB)
+        label = {
+            Text(text = "Your Age")
+        },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(onDone = {
+            if (ageInt > 9 && ageInt < 100) trainingViewModel.onChangeAge(ageInt)
+        }),
+        singleLine = true,
+        maxLines = 1,
+        trailingIcon = {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = "",
+                modifier = Modifier.clickable {
+                    if (ageInt > 9 && ageInt < 100)
+                        trainingViewModel.onChangeAge(ageInt)
+                },
+                tint = (if (ageInt == currentAge && ageInt != 0) Color.Blue
+                else Color.Black)
             )
+        },
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color(0xFFC9C9C9),
+            unfocusedContainerColor = Color(0xFFFBFBFB)
         )
-
-        TextField(
-            value = timeString,
-            onValueChange = {
-                timeString = it
-                if (timeString != "" && timeString.toIntOrNull() != null) timeInt =
-                    timeString.toInt()
-            },
-            Modifier.weight(1f),
-            label = { Text(text = "Workout Time") },
-            singleLine = true,
-            maxLines = 1,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(onDone = {
-                if (timeInt > 9 && timeInt < 121) trainingViewModel.onChangeTime(timeInt)
-            }),
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = "",
-                    modifier = Modifier.clickable {
-                        if (timeInt > 9 && timeInt < 121) trainingViewModel.onChangeTime(timeInt)
-                    },
-                    tint = if (timeInt == currentTime && timeInt != 0) Color.Blue
-                    else Color.Black
-                )
-            },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFFC9C9C9),
-                unfocusedContainerColor = Color(0xFFFBFBFB)
-            )
-        )
-        TextField(
-            value = injure,
-            onValueChange = { injure = it },
-            Modifier.weight(1f),
-            label = { Text(text = "Injure") },
-            singleLine = true,
-            maxLines = 1,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(onDone = {
-                if (injure != "") trainingViewModel.onChangeInjure(injure)
-            }),
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = "",
-                    modifier = Modifier.clickable {
-                        if (injure != "") trainingViewModel.onChangeInjure(injure)
-                    },
-                    tint = (if (injure == currentInjure) Color.Blue
-                    else Color.Black)
-                )
-            },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFFC9C9C9),
-                unfocusedContainerColor = Color(0xFFFBFBFB)
-            )
-        )
-    }
+    )
 }
 
 @Composable
-fun SelectSex(trainingViewModel: TrainingViewModel) {
+fun TimeTextFile(modifier: Modifier, currentTime: Int, trainingViewModel: TrainingViewModel) {
 
-    var selectColor by remember { mutableStateOf(true) }
+    var timeInt by remember { mutableIntStateOf(0) }
+    var timeString by remember { mutableStateOf("") }
 
-    Row(
-        Modifier.fillMaxWidth()
-    ) {
-        Card(
-            Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .clickable {
-                    selectColor = true
-                    trainingViewModel.onChangeSex(1)
-                }, elevation = CardDefaults.cardElevation(8.dp), colors = if (selectColor) {
-                CardDefaults.cardColors(Color(0xFFB2B2B2))
-            } else CardDefaults.cardColors(Color(0xFFFBFBFB))
-        ) {
+    TextField(
+        value = timeString,
+        onValueChange = {
+            timeString = it
+            if (timeString != "" && timeString.toIntOrNull() != null) timeInt =
+                timeString.toInt()
+        },
+        modifier = modifier,
+        label = { Text(text = "Workout Time") },
+        singleLine = true,
+        maxLines = 1,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(onDone = {
+            if (timeInt > 9 && timeInt < 121) trainingViewModel.onChangeTime(timeInt)
+        }),
+        trailingIcon = {
             Icon(
-                painter = painterResource(id = com.cursokotlin.entrenamientosconroom.R.drawable.ic_male),
+                imageVector = Icons.Filled.Check,
                 contentDescription = "",
-                Modifier
-                    .size(40.dp)
-                    .align(Alignment.CenterHorizontally),
-                tint = if (selectColor) Color.Blue else Color.Black
-            )
-        }
-        Spacer(Modifier.size(8.dp))
-        Card(
-            Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .clickable {
-                    selectColor = false
-                    trainingViewModel.onChangeSex(0)
+                modifier = Modifier.clickable {
+                    if (timeInt > 9 && timeInt < 121) trainingViewModel.onChangeTime(timeInt)
                 },
-            elevation = CardDefaults.cardElevation(8.dp),
-            colors = if (selectColor == false) {
-                CardDefaults.cardColors(Color(0xFFB2B2B2))
-            } else CardDefaults.cardColors(Color(0xFFFBFBFB))
-        ) {
-            Icon(
-                painter = painterResource(com.cursokotlin.entrenamientosconroom.R.drawable.ic_female),
-                contentDescription = "female",
-                Modifier
-                    .size(40.dp)
-                    .align(Alignment.CenterHorizontally),
-                tint = if (selectColor == false) Color(0xDDE040FB) else Color.Black
+                tint = if (timeInt == currentTime && timeInt != 0) Color.Blue
+                else Color.Black
             )
-        }
+        },
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color(0xFFC9C9C9),
+            unfocusedContainerColor = Color(0xFFFBFBFB)
+        )
+    )
+}
+
+@Composable
+fun InjureTextField(
+    modifier: Modifier,
+    currentInjure: String,
+    trainingViewModel: TrainingViewModel
+) {
+
+    var injure by remember { mutableStateOf("ninguna") }
+
+    TextField(
+        value = injure,
+        onValueChange = { injure = it },
+        modifier = modifier,
+        label = { Text(text = "Injure") },
+        singleLine = true,
+        maxLines = 1,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(onDone = {
+            if (injure != "") trainingViewModel.onChangeInjure(injure)
+        }),
+        trailingIcon = {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = "",
+                modifier = Modifier.clickable {
+                    if (injure != "") trainingViewModel.onChangeInjure(injure)
+                },
+                tint = (if (injure == currentInjure) Color.Blue
+                else Color.Black)
+            )
+        },
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color(0xFFC9C9C9),
+            unfocusedContainerColor = Color(0xFFFBFBFB)
+        )
+    )
+}
+
+@Composable
+fun SelectSex(
+    modifier: Modifier,
+    changeColorSelected: Boolean,
+    changeSex: Int,
+    icon: Int,
+    description: String,
+    trainingViewModel: TrainingViewModel
+) {
+    Card(
+        modifier
+            .fillMaxWidth()
+            .clickable {
+                trainingViewModel.onChangeSex(changeSex)
+            },
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = if (changeColorSelected) {
+            CardDefaults.cardColors(Color(0xFFB2B2B2))
+        } else CardDefaults.cardColors(Color(0xFFFBFBFB))
+    ) {
+        Icon(
+            painter = painterResource(id = icon),
+            contentDescription = description,
+            Modifier
+                .size(40.dp)
+                .align(Alignment.CenterHorizontally),
+            tint =
+                if (changeColorSelected == true && description == "female") {
+                    Color(0xDDE040FB)
+                } else if (changeColorSelected == true && description == "male") {
+                    Color.Blue
+                } else Color.Black
+        )
     }
 }
 
@@ -527,9 +547,17 @@ fun SelectDropdownMenu(
                         selected = it
                         expanded = false
                         when (icon) {
-                            R.drawable.ic_translate -> trainingViewModel.onChangeLanguage(selectedIndex)
-                            R.drawable.ic_assignment -> trainingViewModel.onChangeTarget(selectedIndex)
-                            R.drawable.ic_difficulty -> trainingViewModel.onChangeDifficulty(selectedIndex)
+                            R.drawable.ic_translate -> trainingViewModel.onChangeLanguage(
+                                selectedIndex
+                            )
+
+                            R.drawable.ic_assignment -> trainingViewModel.onChangeTarget(
+                                selectedIndex
+                            )
+
+                            R.drawable.ic_difficulty -> trainingViewModel.onChangeDifficulty(
+                                selectedIndex
+                            )
                         }
                         Log.d("DropdownMenu", "option selected: $options")
                         Log.d("DropdownMenu", "Index selected: $selected")
@@ -559,128 +587,148 @@ fun TrainingSpacer(
     ) {
         LazyColumn(contentPadding = PaddingValues(8.dp)) {
             items(workoutWithSetsAndExercises, key = { it.workout.workoutId }) { workoutWithSets ->
-                Text(
-                    color = Color(0xFF485C91),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
-                    text = "Entrenamiento: ${workoutWithSets.workout.name} "
-                )
-                Text(
-                    color = Color(0xFF424657),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
-                    textAlign = TextAlign.End,
-                    text = "${workoutWithSets.workout.coach_explanation} "
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-                Divider(
-                    thickness = 1.dp,
-                    color = Color(0xFF485C91),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                )
+                HeaderWorkout(workoutWithSets)
                 Spacer(modifier = Modifier.height(24.dp))
-
                 workoutWithSets.sets.forEach { setWithExercise ->
-                    Text(
-                        color = Color(0xFF282828),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        text = "Set No.${setWithExercise.set.order_set_id + 1}"
-                    )
-                    Text(
-                        color = Color.Gray,
-                        fontWeight = FontWeight.Bold,
-                        text = "${setWithExercise.set.rounds} Rounds"
-                    )
+                    HeaderSet(setWithExercise)
                     Spacer(modifier = Modifier.size(8.dp))
-
                     setWithExercise.exercises.forEach { exercise ->
-                        Text(
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold,
-                            text = "Exercise: ${exercise.order_exercise_id + 1} "
-                        )
-                        Text(
-                            color = Color.Black,
-                            text = when (exercise.muscle_id) {
-                                50 -> "Ejercicios para: Pecho"
-                                31 -> "Ejercicios para: Tríceps"
-                                90 -> "Ejercicios para: Hombros"
-                                10 -> "Ejercicios para: Espalda"
-                                30 -> "Ejercicios para: Bíceps"
-                                60 -> "Ejercicios para: Antebrazos"
-                                20 -> "Ejercicios para: Trapecios"
-                                11 -> "Ejercicios para: Cuádriceps"
-                                70 -> "Ejercicios para: Glúteos"
-                                40 -> "Ejercicios para: Isquiotibiales"
-                                21 -> "Ejercicios para: Pantorrillas"
-                                51 -> "Ejercicios para: Aductores"
-                                61 -> "Ejercicios para: Abductores"
-                                80 -> "Ejercicios para: Abdomen"
-                                41 -> "Ejercicios para: Espalda baja"
-                                else -> "Ejercicio desconocido"
-                            }
-                        )
-                        Text(color = Color.Black, text = exercise.name)
-                        Text(color = Color.Black, text = "Reps ${exercise.reps} ")
-                        Text(
-                            color = Color.Black,
-                            text = when (exercise.movement_id) {
-                                803 -> "Movimiento de: Flexión del abdomen superior"
-                                116 -> "Movimiento de: Prensa"
-                                902 -> "Movimiento de: Elevación frontal de hombros"
-                                200 -> "Movimiento de: Encogimientos de trapecio"
-                                115 -> "Movimiento de: Extensión de rodilla"
-                                102 -> "Movimiento de: Jalón en vertical"
-                                805 -> "Movimiento de: Flexión lateral"
-                                501 -> "Movimiento de: Empuje recto"
-                                110 -> "Movimiento de: Subida al cajón"
-                                113 -> "Movimiento de: Levantamiento de cadera"
-                                315 -> "Movimiento de: Fondos"
-                                301 -> "Movimiento de: Curls de martillo o invertido"
-                                504 -> "Movimiento de: Aperturas"
-                                802 -> "Movimiento de: Flexión abdominal completa"
-                                111 -> "Movimiento de: Curl de isquiotibiales"
-                                103 -> "Movimiento de: Extensión de codo en plano bajo"
-                                311 -> "Movimiento de: Extensión de codo sobre la cabeza"
-                                502 -> "Movimiento de: Empuje inclinado"
-                                505 -> "Movimiento de: Pullover"
-                                314 -> "Movimiento de: Empuje recto con agarre cerrado"
-                                210 -> "Movimiento de: Elevación de talones"
-                                610 -> "Movimiento de: Abducción de cadera"
-                                410 -> "Movimiento de: Extensión de espalda"
-                                201 -> "Movimiento de: Remo vertical"
-                                101 -> "Movimiento de: Jalón en horizontal"
-                                117 -> "Movimiento de: Zancada"
-                                801 -> "Movimiento de: Estabilidad del core"
-                                313 -> "Movimiento de: Extensión de codo hacia el frente"
-                                806 -> "Movimiento de: Flexión de abdomen inferior"
-                                118 -> "Movimiento de: Zancada estática"
-                                300 -> "Movimiento de: Curl supinado"
-                                804 -> "Movimiento de: Rotación de tronco"
-                                114 -> "Movimiento de: Extensión de cadera"
-                                119 -> "Movimiento de: Sentadillas"
-                                510 -> "Movimiento de: Aducción de cadera"
-                                903 -> "Movimiento de: Elevación lateral de hombros"
-                                901 -> "Movimiento de: Elevación de deltoides posterior"
-                                904 -> "Movimiento de: Empuje vertical"
-                                503 -> "Movimiento de: Empuje declinado"
-                                112 -> "Movimiento de: Bisagra de cadera"
-                                302 -> "Movimiento de: Curls de aislamiento"
-                                600 -> "Movimiento de: Curl de muñeca"
-                                312 -> "Movimiento de: Extensión de codo en plano bajo"
-                                else -> "Ejercicio desconocido"
-                            }
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Exercise(exercise)
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
+    }
+}
+
+@Composable
+fun HeaderWorkout(workoutWithSets: WorkoutWithSetsAndExercises) {
+    Text(
+        color = Color(0xFF485C91),
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        text = "Entrenamiento: ${workoutWithSets.workout.name} "
+    )
+    Text(
+        color = Color(0xFF424657),
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        textAlign = TextAlign.End,
+        text = workoutWithSets.workout.coach_explanation
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    Divider(
+        thickness = 1.dp,
+        color = Color(0xFF485C91),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+    )
+}
+
+@Composable
+fun HeaderSet(setWithExercise: SetWithExercise) {
+    Text(
+        color = Color(0xFF282828),
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp,
+        text = "Set No.${setWithExercise.set.order_set_id + 1}"
+    )
+    Text(
+        color = Color.Gray,
+        fontWeight = FontWeight.Bold,
+        text = "${setWithExercise.set.rounds} Rounds"
+    )
+}
+
+@Composable
+fun Exercise(exercise: Exercise) {
+    Text(
+        color = Color.Black,
+        fontWeight = FontWeight.Bold,
+        text = "Exercise: ${exercise.order_exercise_id + 1} "
+    )
+    Text(
+        color = Color.Black,
+        text = "Ejercicios para: ${getMuscleName(exercise.muscle_id)}"
+    )
+    Text(color = Color.Black, text = exercise.name)
+    Text(color = Color.Black, text = "Reps ${exercise.reps} ")
+    Text(
+        color = Color.Black,
+        text = "Movimiento de: ${getExerciseName(exercise.movement_id)}"
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+}
+
+fun getMuscleName(id: Int): String {
+    return when (id) {
+        50 -> "Pecho"
+        31 -> "Tríceps"
+        90 -> "Hombros"
+        10 -> "Espalda"
+        30 -> "Bíceps"
+        60 -> "Antebrazos"
+        20 -> "Trapecios"
+        11 -> "Cuádriceps"
+        70 -> "Glúteos"
+        40 -> "Isquiotibiales"
+        21 -> "Pantorrillas"
+        51 -> "Aductores"
+        61 -> "Abductores"
+        80 -> "Abdomen"
+        41 -> "Espalda baja"
+        else -> "Ejercicio desconocido"
+    }
+}
+
+fun getExerciseName(id: Int) {
+    when (id) {
+        803 -> "Flexión del abdomen superior"
+        116 -> "Prensa"
+        902 -> "Elevación frontal de hombros"
+        200 -> "Encogimientos de trapecio"
+        115 -> "Extensión de rodilla"
+        102 -> "Jalón en vertical"
+        805 -> "Flexión lateral"
+        501 -> "Empuje recto"
+        110 -> "Subida al cajón"
+        113 -> "Levantamiento de cadera"
+        315 -> "Fondos"
+        301 -> "Curls de martillo o invertido"
+        504 -> "Aperturas"
+        802 -> "Flexión abdominal completa"
+        111 -> "Curl de isquiotibiales"
+        103 -> "Extensión de codo en plano bajo"
+        311 -> "Extensión de codo sobre la cabeza"
+        502 -> "Empuje inclinado"
+        505 -> "Pullover"
+        314 -> "Empuje recto con agarre cerrado"
+        210 -> "Elevación de talones"
+        610 -> "Abducción de cadera"
+        410 -> "Extensión de espalda"
+        201 -> "Remo vertical"
+        101 -> "Jalón en horizontal"
+        117 -> "Zancada"
+        801 -> "Estabilidad del core"
+        313 -> "Extensión de codo hacia el frente"
+        806 -> "Flexión de abdomen inferior"
+        118 -> "Zancada estática"
+        300 -> "Curl supinado"
+        804 -> "Rotación de tronco"
+        114 -> "Extensión de cadera"
+        119 -> "Sentadillas"
+        510 -> "Aducción de cadera"
+        903 -> "Elevación lateral de hombros"
+        901 -> "Elevación de deltoides posterior"
+        904 -> "Empuje vertical"
+        503 -> "Empuje declinado"
+        112 -> "Bisagra de cadera"
+        302 -> "Curls de aislamiento"
+        600 -> "Curl de muñeca"
+        312 -> "Extensión de codo en plano bajo"
+        else -> "Ejercicio desconocido"
     }
 }
 
@@ -723,7 +771,13 @@ fun SingOutDialog(
                 modifier = Modifier.size(100.dp)
             )
         },
-        title = { Text(text = "Sing Out", color = Color(0xFF04527C), fontWeight = FontWeight.ExtraBold) },
+        title = {
+            Text(
+                text = "Sing Out",
+                color = Color(0xFF04527C),
+                fontWeight = FontWeight.ExtraBold
+            )
+        },
         text = {
             Text(
                 text = textError,

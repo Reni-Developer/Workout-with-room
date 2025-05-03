@@ -1,6 +1,5 @@
 package com.cursokotlin.entrenamientosconroom.ui.viewmodel
 
-import android.text.BoringLayout
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -54,6 +53,12 @@ class TrainingViewModel @Inject constructor(
     private val _singOutDialogState = MutableLiveData<Boolean>(false)
     val singOutDialogState: LiveData<Boolean> get() = _singOutDialogState
 
+    private val _changeColorMaleSelected = MutableLiveData<Boolean>(true)
+    val changeColorMaleSelected: LiveData<Boolean> get() = _changeColorMaleSelected
+
+    private val _changeColorFemaleSelected = MutableLiveData<Boolean>(false)
+    val changeColorFemaleSelected: LiveData<Boolean> get() = _changeColorFemaleSelected
+
     val _musclesById = MutableLiveData<List<CheckInfo>>(
         listOf(
             CheckInfo("Pecho", false, 50),
@@ -77,6 +82,7 @@ class TrainingViewModel @Inject constructor(
 
     fun updateMuscleSelection(index: Int, selected: Boolean) {
         val updatedList = _musclesById.value?.toMutableList()
+        // este bloque se ejecuta solo si updatedList NO es null
         updatedList?.let {
             it[index] = it[index].copy(selected = selected)
             _musclesById.value = it
@@ -100,6 +106,9 @@ class TrainingViewModel @Inject constructor(
 
     fun onChangeSex(sex: Int) {
         _sex.value = sex
+        Log.d("TrainingViewModel","Variable sex 0 -> F / 1 -> M: El sexo es -> ${_sex.value}")
+        _changeColorMaleSelected.value = _changeColorMaleSelected.value != true
+        _changeColorFemaleSelected.value = _changeColorFemaleSelected.value != true
     }
 
     fun onChangeLanguage(language: Int) {

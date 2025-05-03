@@ -2,6 +2,7 @@ package com.cursokotlin.entrenamientosconroom.ui
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -53,7 +53,7 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
     val stateFirstSignIn by loginViewModel.stateFirstSignIn.collectAsState(true)
     val errorType by loginViewModel.errorType.collectAsState(99)
 
-    val activity = LocalContext.current as Activity
+    val activity = LocalActivity.current
 
     val textError0 =
         "''La cuenta a la que intenta acceder no está registrada. Por favor, inicie sesión " +
@@ -219,9 +219,8 @@ fun SignIn() {
     Text(text = "Sign In with:", color = Color(0xFFA2A2A5))
 }
 
-@SuppressLint("ContextCastToActivity")
 @Composable
-fun LoginGoogle(loginViewModel: LoginViewModel, activity: Activity) {
+fun LoginGoogle(loginViewModel: LoginViewModel, activity: Activity?) {
 
     Image(
         painter = painterResource(id = R.drawable.logo_google), contentDescription = "Google",
