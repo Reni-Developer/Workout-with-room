@@ -23,17 +23,30 @@ class TrainingViewModel @Inject constructor(
     private val _workoutWithSets = MutableLiveData<List<WorkoutWithSetsAndExercises>>()
     val workoutWithSets: LiveData<List<WorkoutWithSetsAndExercises>> get() = _workoutWithSets
 
+    private val _lastUserData = MutableLiveData<UserDataModel>(
+        UserDataModel(0, 0, 0, listOf(), 0, 0, "", 0))
+    val lastUserData: LiveData<UserDataModel> get() = _lastUserData
+
     private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> get() = _isLoading
 
+    private val _sheetState = MutableLiveData<Boolean>(false)
+    val sheetState: LiveData<Boolean> get() = _sheetState
+
     private val _age = MutableLiveData<Int>(0)
     val age: LiveData<Int> get() = _age
+    private val _currentAge = MutableLiveData<String>("")
+    val currentAge: LiveData<String> get() = _currentAge
 
     private val _time = MutableLiveData<Int>(0)
     val time: LiveData<Int> get() = _time
+    private val _currentTime = MutableLiveData<String>("")
+    val currentTime: LiveData<String> get() = _currentTime
 
     private val _injure = MutableLiveData<String>("")
     val injure: LiveData<String> get() = _injure
+    private val _currentInjuries = MutableLiveData<String>("")
+    val currentInjuries: LiveData<String> get() = _currentInjuries
 
     private val _sex = MutableLiveData<Int>(0)
     val sex: LiveData<Int> get() = _sex
@@ -54,10 +67,10 @@ class TrainingViewModel @Inject constructor(
     val singOutDialogState: LiveData<Boolean> get() = _singOutDialogState
 
     private val _changeColorMaleSelected = MutableLiveData<Boolean>(true)
-    val changeColorMaleSelected: LiveData<Boolean> get() = _changeColorMaleSelected
+    val changeColorMSelected: LiveData<Boolean> get() = _changeColorMaleSelected
 
     private val _changeColorFemaleSelected = MutableLiveData<Boolean>(false)
-    val changeColorFemaleSelected: LiveData<Boolean> get() = _changeColorFemaleSelected
+    val changeColorFSelected: LiveData<Boolean> get() = _changeColorFemaleSelected
 
     val _musclesById = MutableLiveData<List<CheckInfo>>(
         listOf(
@@ -91,17 +104,30 @@ class TrainingViewModel @Inject constructor(
         }
     }
 
-    fun onChangeAge(age: Int) {
-        _age.value = age
+    fun onChangeAge(age: Int?) {
+        _age.value = age!!
+    }
+    fun onChangeCurrentAge(currentAge: String) {
+        _currentAge.value = currentAge
+        Log.d("TrainingViewModel", "onChangeCurrentAge: $currentAge")
     }
 
     fun onChangeTime(time: Int) {
         _time.value = time
+        Log.d("TrainingViewModel","onChangeTime:$time")
+    }
+    fun onChangeCurrentTime(currentTime: String){
+        _currentTime.value = currentTime
+        Log.d("TrainingViewModel","onChangeCurrentTime: $currentTime")
     }
 
     fun onChangeInjure(injure: String) {
         _injure.value = injure
         Log.d("TrainingViewModel", "onChangeInjure: $injure")
+    }
+    fun onChangeCurrentInjure(currentInjure: String){
+        _currentInjuries.value = currentInjure
+        Log.d("TrainingViewModel", "onChangeCurrentInjure: $currentInjure")
     }
 
     fun onChangeSex(sex: Int) {
@@ -131,11 +157,11 @@ class TrainingViewModel @Inject constructor(
         _singOutDialogState.value = false
     }
 
-    fun loadWorkout(userData: UserDataModel) {
+    fun loadWorkout(currentUserData: UserDataModel) {
         // Paso 1: Llama al UseCase que hace POST a la API y guarda en Room
         viewModelScope.launch {
             _isLoading.value = true
-            trainingUseCase(userData)
+            trainingUseCase(currentUserData)
             // Paso 2: Recupera todos los workouts simples (sin relaciones)
             val allWorkouts = workoutDao.getAllWorkouts()
             // Paso 3: Recorre cada workout y obtiene su estructura completa (sets + ejercicios)
@@ -148,6 +174,12 @@ class TrainingViewModel @Inject constructor(
             _workoutWithSets.value = detailedWorkouts
             _isLoading.value = false
         }
+        _lastUserData.value = currentUserData
+    }
+
+    fun onChangeSheetState() {
+        _sheetState.value = _sheetState.value != true
+        Log.d("TrainingViewModel", "onChangeSheetState: ${_sheetState.value}")
     }
 }
 

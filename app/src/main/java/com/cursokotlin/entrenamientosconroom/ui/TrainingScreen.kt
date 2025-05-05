@@ -3,8 +3,10 @@
 package com.cursokotlin.entrenamientosconroom.ui
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,24 +24,32 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -52,7 +62,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -79,18 +91,29 @@ fun TrainingScreen(
     val workoutWithSetsAndExercises by trainingViewModel.workoutWithSets.observeAsState(emptyList())
 
     val age by trainingViewModel.age.observeAsState(initial = 0)
+    val currentAge by trainingViewModel.currentAge.observeAsState("")
+
     val time by trainingViewModel.time.observeAsState(initial = 0)
+    val currentTime by trainingViewModel.currentTime.observeAsState("")
+
     val injuries by trainingViewModel.injure.observeAsState("ninguna")
+    val currentInjuries by trainingViewModel.currentInjuries.observeAsState("")
+
     val sex by trainingViewModel.sex.observeAsState(0)
     val language by trainingViewModel.language.observeAsState(0)
     val target by trainingViewModel.target.observeAsState(0)
     val difficulty by trainingViewModel.difficulty.observeAsState(0)
     val muscles by trainingViewModel.muscles.observeAsState(listOf())
+
     val singOutDialogState by trainingViewModel.singOutDialogState.observeAsState(false)
-    val changeColorMaleSelected by trainingViewModel.changeColorMaleSelected.observeAsState(true)
-    val changeColorFemaleSelected by trainingViewModel.changeColorFemaleSelected.observeAsState(
-        false
-    )
+    val changeColorMSelected by trainingViewModel.changeColorMSelected.observeAsState(true)
+    val changeColorFSelected by trainingViewModel.changeColorFSelected.observeAsState(false)
+
+    val isLoading by trainingViewModel.isLoading.observeAsState(false)
+    val sheetState by trainingViewModel.sheetState.observeAsState(false)
+
+    val lastUserData by trainingViewModel.lastUserData.observeAsState(
+        UserDataModel(0, 0, 0, listOf(), 0, 0, "", 0))
 
     val currentUserData = UserDataModel(
         sex = sex,
@@ -119,46 +142,110 @@ fun TrainingScreen(
             .padding(horizontal = 8.dp)
     ) {
 
-        SingOut(trainingViewModel)
-        Spacer(Modifier.height(8.dp))
+        Log.d("TrainingScreen","lastUserData : $lastUserData")
+        Log.d("TrainingScreen","currentUserData: $currentUserData")
 
-        Row(Modifier.weight(0.45f)) {
+        SingOut(trainingViewModel)
+        Spacer(Modifier.height(24.dp))
+
+        Row(Modifier.weight(0.8f)) {
             Card(
                 modifier = Modifier.weight(1f),
                 elevation = CardDefaults.cardElevation(8.dp),
                 colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
             ) {
-                AgeTextField(Modifier.weight(1f), trainingViewModel, age)
-
-                TimeTextFile(Modifier.weight(1f), time, trainingViewModel)
-
-                InjureTextField(Modifier.weight(1f), injuries, trainingViewModel)
+                AtiTextField(
+                    modifier = Modifier.weight(1f),
+                    current = currentAge,
+                    label = "Your Age",
+                    keyboardType = KeyboardType.Number,
+                    onValueChange = { trainingViewModel.onChangeCurrentAge(it.filter { it.isDigit() }) },
+                    onClickIcon = {
+                        val ageInt = currentAge.toIntOrNull()
+                        if (ageInt != null && ageInt > 9 && ageInt < 100)
+                            trainingViewModel.onChangeAge(ageInt)
+                    },
+                    tint = {
+                        val intCurrent = currentAge.toIntOrNull()
+                        if (intCurrent != null && intCurrent == age && intCurrent != 0)
+                            Color.Blue
+                        else Color.Black
+                    }
+                )
+                AtiTextField(
+                    modifier = Modifier.weight(1f),
+                    current = currentTime,
+                    label = "Workout Time",
+                    keyboardType = KeyboardType.Number,
+                    onValueChange = { trainingViewModel.onChangeCurrentTime(it.filter { it.isDigit() }) },
+                    onClickIcon = {
+                        val timeInt = currentTime.toIntOrNull()
+                        if (timeInt != null && timeInt > 14 && timeInt < 121)
+                            trainingViewModel.onChangeTime(timeInt)
+                    },
+                    tint = {
+                        val intCurrent = currentTime.toIntOrNull()
+                        if (intCurrent != null && intCurrent == time && intCurrent != 0)
+                            Color.Blue
+                        else Color.Black
+                    }
+                )
+                AtiTextField(
+                    modifier = Modifier.weight(1f),
+                    current = currentInjuries,
+                    label = "Injuries",
+                    keyboardType = KeyboardType.Text,
+                    onValueChange = { trainingViewModel.onChangeCurrentInjure(it.filter { it.isLetter() }) },
+                    onClickIcon = {
+                        if (currentInjuries != "")
+                            trainingViewModel.onChangeInjure(currentInjuries)
+                    },
+                    tint = {
+                        if (injuries == currentInjuries) Color.Blue
+                        else Color.Black
+                    }
+                )
             }
             Spacer(Modifier.width(8.dp))
             ConfigMuscles(Modifier.weight(1f), trainingViewModel)
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(24.dp))
 
         Row(Modifier.fillMaxWidth()) {
             SelectSex(
                 Modifier.weight(1f),
-                changeColorMaleSelected,
+                changeColorMSelected,
                 changeSex = 1,
+                colorSelected = R.color.selectedMale,
+                colorUnselected = R.color.unselected,
                 icon = R.drawable.ic_male,
                 description = "male",
+                tint = {
+                    if (changeColorMSelected == true) {
+                        Color.Blue
+                    } else
+                        Color.Black
+                },
                 trainingViewModel
             )
             Spacer(Modifier.size(8.dp))
             SelectSex(
                 Modifier.weight(1f),
-                changeColorFemaleSelected,
+                changeColorFSelected,
                 changeSex = 0,
+                colorSelected = R.color.selectedFemale,
+                colorUnselected = R.color.unselected,
                 icon = R.drawable.ic_female,
                 description = "female",
+                tint = {
+                    if (changeColorFSelected == true) {
+                        Color.Black
+                    } else Color.Black
+                },
                 trainingViewModel
             )
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(24.dp))
 
         SelectDropdownMenu(Modifier, languages, languageIcon, trainingViewModel)
         Spacer(Modifier.height(8.dp))
@@ -167,13 +254,23 @@ fun TrainingScreen(
         Spacer(Modifier.height(8.dp))
 
         SelectDropdownMenu(Modifier, difficulties, difficultiesIcon, trainingViewModel)
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(24.dp))
 
-        TrainingSpacer(Modifier.weight(0.9f), workoutWithSetsAndExercises)
+        TrainingSpacer(Modifier.weight(0.9f), workoutWithSetsAndExercises, trainingViewModel)
+        Spacer(modifier = Modifier.height(24.dp))
+
+        UpdateTraining(
+            Modifier.weight(0.18f),
+            trainingViewModel,
+            isLoading,
+            currentUserData,
+            lastUserData
+        )
         Spacer(modifier = Modifier.height(8.dp))
 
-        UpdateTraining(Modifier.weight(0.12f), trainingViewModel, currentUserData)
-        Spacer(modifier = Modifier.height(8.dp))
+        if (sheetState) {
+            SheetWorkout(trainingViewModel, workoutWithSetsAndExercises)
+        }
 
         if (singOutDialogState) {
             SingOutDialog(textSingOut, trainingViewModel, loginViewModel)
@@ -189,7 +286,7 @@ fun SingOut(trainingViewModel: TrainingViewModel) {
                 trainingViewModel.openSingOutDialog()
             }
             .fillMaxWidth(),
-        shape = RoundedCornerShape(20),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF485C91)),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
@@ -204,8 +301,9 @@ fun SingOut(trainingViewModel: TrainingViewModel) {
             )
             Text(
                 text = "Sing Out",
+                Modifier.padding(vertical = 4.dp),
                 color = Color.White,
-                fontSize = 18.sp
+                fontSize = 20.sp
             )
             HorizontalDivider(
                 Modifier
@@ -231,13 +329,30 @@ fun ConfigMuscles(modifier: Modifier, trainingViewModel: TrainingViewModel) {
     ) {
         LazyColumn {
             itemsIndexed(muscles) { index, item ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
                         checked = item.selected,
                         onCheckedChange = {
                             trainingViewModel.updateMuscleSelection(index, it)
-                        })
-                    Text(text = item.muscle)
+                        },
+                        Modifier
+                            .clip(shape = RoundedCornerShape(80.dp))
+                            .size(20.dp)
+                            .background(Color(0xFF8A8A8A))
+                            .border(BorderStroke(2.dp, Color.Black), shape = CircleShape),
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = Color(0xFF3F3F3F),
+                            uncheckedColor = Color(0xFF8A8A8A),
+                            checkmarkColor = Color.White
+                        )
+                    )
+                    Spacer(Modifier.size(16.dp))
+                    Text(
+                        text = item.muscle,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp,
+                        color = colorResource(R.color.letters_gray)
+                    )
                 }
             }
         }
@@ -251,125 +366,51 @@ data class CheckInfo(
 )
 
 @Composable
-fun AgeTextField(modifier: Modifier, trainingViewModel: TrainingViewModel, currentAge: Int) {
-
-    var ageInt by remember { mutableIntStateOf(0) }
-    var ageString by remember { mutableStateOf("") }
-
+fun AtiTextField(
+    modifier: Modifier,
+    current: String,
+    label: String,
+    keyboardType: KeyboardType,
+    onValueChange: (String) -> Unit,
+    onClickIcon: () -> Unit,
+    tint: () -> Color
+) {
     TextField(
-        value = ageString,
-        onValueChange = {
-            ageString = it
-            if (ageString != "" && ageString.toIntOrNull() != null) ageInt = ageString.toInt()
-        },
+        value = current,
+        onValueChange = { onValueChange(it) },
         modifier = modifier,
         label = {
-            Text(text = "Your Age")
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Divider(Modifier.weight(1f), thickness = 0.8.dp, color = Color(0xFF868686))
+                Text(
+                    text = label,
+                    Modifier.padding(horizontal = 4.dp),
+                    color = Color(0xF3757575),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                Divider(Modifier.weight(1f), thickness = 0.8.dp, color = Color(0xFF868686))
+            }
         },
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
+            keyboardType = keyboardType,
             imeAction = ImeAction.Done
         ),
-        keyboardActions = KeyboardActions(onDone = {
-            if (ageInt > 9 && ageInt < 100) trainingViewModel.onChangeAge(ageInt)
-        }),
         singleLine = true,
         maxLines = 1,
         trailingIcon = {
             Icon(
                 imageVector = Icons.Filled.Check,
-                contentDescription = "",
-                modifier = Modifier.clickable {
-                    if (ageInt > 9 && ageInt < 100)
-                        trainingViewModel.onChangeAge(ageInt)
-                },
-                tint = (if (ageInt == currentAge && ageInt != 0) Color.Blue
-                else Color.Black)
+                contentDescription = "Check",
+                modifier = Modifier.clickable { onClickIcon() },
+                tint = tint()
             )
         },
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFFC9C9C9),
-            unfocusedContainerColor = Color(0xFFFBFBFB)
-        )
-    )
-}
-
-@Composable
-fun TimeTextFile(modifier: Modifier, currentTime: Int, trainingViewModel: TrainingViewModel) {
-
-    var timeInt by remember { mutableIntStateOf(0) }
-    var timeString by remember { mutableStateOf("") }
-
-    TextField(
-        value = timeString,
-        onValueChange = {
-            timeString = it
-            if (timeString != "" && timeString.toIntOrNull() != null) timeInt =
-                timeString.toInt()
-        },
-        modifier = modifier,
-        label = { Text(text = "Workout Time") },
-        singleLine = true,
-        maxLines = 1,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions(onDone = {
-            if (timeInt > 9 && timeInt < 121) trainingViewModel.onChangeTime(timeInt)
-        }),
-        trailingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = "",
-                modifier = Modifier.clickable {
-                    if (timeInt > 9 && timeInt < 121) trainingViewModel.onChangeTime(timeInt)
-                },
-                tint = if (timeInt == currentTime && timeInt != 0) Color.Blue
-                else Color.Black
-            )
-        },
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFFC9C9C9),
-            unfocusedContainerColor = Color(0xFFFBFBFB)
-        )
-    )
-}
-
-@Composable
-fun InjureTextField(
-    modifier: Modifier,
-    currentInjure: String,
-    trainingViewModel: TrainingViewModel
-) {
-
-    var injure by remember { mutableStateOf("ninguna") }
-
-    TextField(
-        value = injure,
-        onValueChange = { injure = it },
-        modifier = modifier,
-        label = { Text(text = "Injure") },
-        singleLine = true,
-        maxLines = 1,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions(onDone = {
-            if (injure != "") trainingViewModel.onChangeInjure(injure)
-        }),
-        trailingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = "",
-                modifier = Modifier.clickable {
-                    if (injure != "") trainingViewModel.onChangeInjure(injure)
-                },
-                tint = (if (injure == currentInjure) Color.Blue
-                else Color.Black)
-            )
-        },
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFFC9C9C9),
+            focusedContainerColor = colorResource(id = R.color.selected),
             unfocusedContainerColor = Color(0xFFFBFBFB)
         )
     )
@@ -380,8 +421,11 @@ fun SelectSex(
     modifier: Modifier,
     changeColorSelected: Boolean,
     changeSex: Int,
+    colorSelected: Int,
+    colorUnselected: Int,
     icon: Int,
     description: String,
+    tint: () -> Color,
     trainingViewModel: TrainingViewModel
 ) {
     Card(
@@ -392,37 +436,32 @@ fun SelectSex(
             },
         elevation = CardDefaults.cardElevation(8.dp),
         colors = if (changeColorSelected) {
-            CardDefaults.cardColors(Color(0xFFB2B2B2))
-        } else CardDefaults.cardColors(Color(0xFFFBFBFB))
+            CardDefaults.cardColors(colorResource(id = colorSelected))
+        } else {
+            CardDefaults.cardColors(colorResource(id = colorUnselected))
+        }
     ) {
         Icon(
             painter = painterResource(id = icon),
             contentDescription = description,
             Modifier
-                .size(40.dp)
-                .align(Alignment.CenterHorizontally),
-            tint =
-                if (changeColorSelected == true && description == "female") {
-                    Color(0xDDE040FB)
-                } else if (changeColorSelected == true && description == "male") {
-                    Color.Blue
-                } else Color.Black
+                .size(150.dp)
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 16.dp),
+            tint = tint()
         )
     }
 }
 
 @Composable
 fun UpdateTraining(
-    modifier: Modifier, trainingViewModel: TrainingViewModel, currentUserData: UserDataModel
+    modifier: Modifier,
+    trainingViewModel: TrainingViewModel,
+    isLoading: Boolean,
+    currentUserData: UserDataModel,
+    lastUserData: UserDataModel
 ) {
-    var lastUserData = remember {
-        mutableStateOf(UserDataModel(0, 0, 0, listOf(), 0, 0, "", 0))
-    }
-    val isLoading by trainingViewModel.isLoading.observeAsState(false)
-//    Log.d("UpdateTraining", "isLoading = $isLoading")
-
-    val enable = currentUserData != lastUserData.value
-
+    val enable = currentUserData != lastUserData
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -431,8 +470,7 @@ fun UpdateTraining(
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(Color(0xFF485C91)),
         onClick = {
-            if (currentUserData != lastUserData.value) {
-                lastUserData.value = currentUserData
+            if (currentUserData != lastUserData) {
                 trainingViewModel.loadWorkout(currentUserData)
             }
         },
@@ -443,36 +481,41 @@ fun UpdateTraining(
                 CircularProgressIndicator()
             }
         } else {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = "UpdateTraining",
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .align(Alignment.CenterVertically),
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
-                Icon(
-                    painter = painterResource(id = com.cursokotlin.entrenamientosconroom.R.drawable.ic_fitness),
-                    contentDescription = null,
-                    modifier = Modifier.size(35.dp),
-                    tint =
-                        if (enable)
-                            Color(0xFFEEFF41)
-                        else Color(0xFFFFFFFF)
-                )
-            }
+            ButtonDesingUpdate(enable)
         }
+    }
+}
+
+@Composable
+fun ButtonDesingUpdate(enable: Boolean) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = "UpdateTraining",
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .align(Alignment.CenterVertically),
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+        Icon(
+            painter = painterResource(id = R.drawable.ic_fitness),
+            contentDescription = null,
+            modifier = Modifier.size(35.dp),
+            tint =
+                if (enable)
+                    Color(0xFFEEFF41)
+                else Color(0xFFFFFFFF)
+        )
     }
 }
 
@@ -481,7 +524,7 @@ fun SelectDropdownMenu(
     modifier: Modifier, options: List<String>, icon: Int, trainingViewModel: TrainingViewModel
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val options = options
+//    val options = options
     var selected by remember { mutableStateOf(options[0]) }
     val selectedIndex = options.indexOf(selected)
 
@@ -522,8 +565,9 @@ fun SelectDropdownMenu(
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
                         .align(Alignment.CenterVertically),
+                    color = colorResource(id = R.color.letters_gray),
                     textAlign = TextAlign.Center,
-                    fontSize = 20.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
             }
@@ -559,9 +603,9 @@ fun SelectDropdownMenu(
                                 selectedIndex
                             )
                         }
-                        Log.d("DropdownMenu", "option selected: $options")
-                        Log.d("DropdownMenu", "Index selected: $selected")
-                        Log.d("DropdownMenu", "Index selected: $selectedIndex")
+                        Log.d("TrainingScreen", "option selected: $options")
+                        Log.d("TrainingScreen", "Index selected: $selected")
+                        Log.d("TrainingScreen", "Index selected: $selectedIndex")
                     }, colors = MenuDefaults.itemColors(
                         textColor = Color(color = 0xFF545454),
                     ), contentPadding = PaddingValues(horizontal = 16.dp)
@@ -578,10 +622,14 @@ fun SelectDropdownMenu(
 
 @Composable
 fun TrainingSpacer(
-    modifier: Modifier, workoutWithSetsAndExercises: List<WorkoutWithSetsAndExercises>
+    modifier: Modifier,
+    workoutWithSetsAndExercises: List<WorkoutWithSetsAndExercises>,
+    trainingViewModel: TrainingViewModel
 ) {
     Card(
-        modifier.fillMaxSize(),
+        modifier
+            .fillMaxSize()
+            .clickable { trainingViewModel.onChangeSheetState() },
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
     ) {
@@ -683,8 +731,8 @@ fun getMuscleName(id: Int): String {
     }
 }
 
-fun getExerciseName(id: Int) {
-    when (id) {
+fun getExerciseName(id: Int): String {
+    return when (id) {
         803 -> "Flexión del abdomen superior"
         116 -> "Prensa"
         902 -> "Elevación frontal de hombros"
@@ -789,5 +837,12 @@ fun SingOutDialog(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SheetWorkout(trainingViewModel: TrainingViewModel, workoutWithSetsAndExercises: List<WorkoutWithSetsAndExercises>) {
+    ModalBottomSheet(onDismissRequest = {trainingViewModel.onChangeSheetState()}) {
+        TrainingSpacer(Modifier.weight(0.9f), workoutWithSetsAndExercises, trainingViewModel)
+    }
+}
 
 

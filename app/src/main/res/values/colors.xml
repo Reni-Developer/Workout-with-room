@@ -8,4 +8,13 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+
+    <color name="letters_gray">#7A7A7A</color>
+    <color name="selected">#C3C3C3</color>
+    <color name="unselected">#FFFBFBFB</color>
+
+    <color name="selectedMale">#9494FF</color>
+    <color name="selectedFemale">#EDB3FF</color>
+
+
 </resources>
