@@ -13,8 +13,10 @@
     <color name="selected">#C3C3C3</color>
     <color name="unselected">#FFFBFBFB</color>
 
-    <color name="selectedMale">#9494FF</color>
+    <color name="selectedMale">#738AFB</color>
     <color name="selectedFemale">#EDB3FF</color>
+
+    <color name="primary_icon">#465A8F</color>
 
 
 </resources>
