@@ -1,6 +1,5 @@
-package com.cursokotlin.entrenamientosconroom.ui
+package com.cursokotlin.entrenamientosconroom.ui.screenLogin
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
@@ -42,7 +41,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cursokotlin.entrenamientosconroom.R
-import com.cursokotlin.entrenamientosconroom.ui.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(loginViewModel: LoginViewModel) {
@@ -81,10 +79,6 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
             .padding(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (stateFirstSignIn){
-            loginViewModel.firstSignIn(activity)
-        }
-
         Spacer(Modifier.size(100.dp))
         IncreaseFit()
 
@@ -123,8 +117,10 @@ fun LoginScreen(loginViewModel: LoginViewModel) {
                 2 -> ErrorDialog(textErrorG, loginViewModel)
                 3 -> ErrorDialog(textErrorC, loginViewModel)
             }
-
         }
+    }
+    if (stateFirstSignIn){
+        loginViewModel.firstSignIn(activity)
     }
 }
 
@@ -221,7 +217,6 @@ fun SignIn() {
 
 @Composable
 fun LoginGoogle(loginViewModel: LoginViewModel, activity: Activity?) {
-
     Image(
         painter = painterResource(id = R.drawable.logo_google), contentDescription = "Google",
         Modifier
@@ -284,7 +279,6 @@ fun Or() {
 @Composable
 fun CreateAccount(
     enableCreateAccount: Boolean,
-
     loginViewModel: LoginViewModel
 ) {
 

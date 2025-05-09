@@ -1,4 +1,4 @@
-package com.cursokotlin.entrenamientosconroom.ui.viewmodel
+package com.cursokotlin.entrenamientosconroom.ui.screenLogin
 
 import android.app.Activity
 import android.util.Log
@@ -31,7 +31,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val auth: FirebaseAuth,
-    private val credentialManager: CredentialManager
+    private val credentialManager: CredentialManager,
 ) : ViewModel() {
 
     private val _image = MutableStateFlow<ImageVector>(Icons.Filled.Visibility)
@@ -75,12 +75,13 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onEmailAndPassSignIn() {
+
         if (_email.value.isNotEmpty() && _password.value.isNotEmpty())
             auth
                 .signInWithEmailAndPassword(_email.value, _password.value)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        signIn()
+                        goScreenUser()
                         Log.d("LoginViewModel", "Cuenta logeada exitosamente.")
                     } else {
                         Log.e(
@@ -98,7 +99,7 @@ class LoginViewModel @Inject constructor(
                 .createUserWithEmailAndPassword(_email.value, _password.value)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        signIn()
+                        goScreenUser()
                         Log.d("LoginViewModel", "Cuenta creada exitosamente.")
                     } else {
                         Log.e("LoginViewModel", "Error al crear cuenta: ${it.exception?.message}")
@@ -140,9 +141,9 @@ class LoginViewModel @Inject constructor(
             try {
                 val result = credentialManager.getCredential(activity!!, request)
                 val rawCredential = result.credential
-                if (rawCredential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                if (rawCredential.type == GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     val credential =
-                        GoogleIdTokenCredential.createFrom(rawCredential.data)
+                        GoogleIdTokenCredential.Companion.createFrom(rawCredential.data)
                     val idToken = credential.idToken
                     if (idToken.isNotEmpty()) {
                         firebaseAuthWithGoogle(idToken)
@@ -162,7 +163,7 @@ class LoginViewModel @Inject constructor(
             .addOnCompleteListener {
                 if (it.isSuccessful) {
                     Log.d("LoginViewModel", "signInWithCredential:success")
-                    signIn()
+                    goScreenUser()
                 } else {
                     Log.w("LoginViewModel", "signInWithCredential:failure", it.exception)
                     createError(3)
@@ -170,17 +171,10 @@ class LoginViewModel @Inject constructor(
             }
     }
 
-    fun signIn() {
-        _stateFirstSignIn.value = false
-        _navigator.value = Navigator.Screen2
-    }
-
     fun signOut() {
-        _stateFirstSignIn.value = true
         auth.signOut()
         clearCredentials()
-        _navigator.value = Navigator.Screen1
-        Log.d("LoginViewModel", "Cuenta cerrada exitosamente.")
+        _stateFirstSignIn.value = true
     }
 
     fun clearCredentials(){
@@ -196,6 +190,39 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    fun goScreenUser() {
+        _navigator.value = Navigator.Screen2
+    }
+
+    fun goScreenLogin() {
+        _navigator.value = Navigator.Screen1
+        Log.d("LoginViewModel", "Cuenta cerrada exitosamente.")
+    }
+
+    fun goScreenHome() {
+        try {
+            _navigator.value = Navigator.Screen3
+            Log.d("LoginViewModel", "Navegación hacia home.")
+        }catch (e: Exception){
+            Log.e("LoginViewModel", "No hay pantalla aun :${e}")
+        }
+    }
+
+    fun goScreenNote() {
+        _navigator.value = Navigator.Screen4
+        Log.d("LoginViewModel", "Navegación hacia note.")
+    }
+
+    fun goScreenHead() {
+        _navigator.value = Navigator.Screen5
+        Log.d("LoginViewModel", "Navegación hacia head.")
+    }
+
+    fun goScreenCalendar() {
+        _navigator.value = Navigator.Screen6
+        Log.d("LoginViewModel", "Navegación hacia calendar.")
+    }
+
     fun confirmButton() {
         _errorType.value = 99
     }
@@ -205,4 +232,3 @@ class LoginViewModel @Inject constructor(
     }
 
 }
-

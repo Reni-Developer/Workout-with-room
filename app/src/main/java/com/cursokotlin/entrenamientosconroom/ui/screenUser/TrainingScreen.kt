@@ -1,8 +1,7 @@
 @file:Suppress("DEPRECATION")
 
-package com.cursokotlin.entrenamientosconroom.ui
+package com.cursokotlin.entrenamientosconroom.ui.screenUser
 
-import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -16,28 +15,25 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AssignmentTurnedIn
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CurrencyExchange
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -45,20 +41,15 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -66,8 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -77,32 +67,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cursokotlin.entrenamientosconroom.R
-import com.cursokotlin.entrenamientosconroom.data.bd.Exercise
-import com.cursokotlin.entrenamientosconroom.data.bd.SetWithExercise
-import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutWithSetsAndExercises
 import com.cursokotlin.entrenamientosconroom.data.networkAPI.UserDataModel
-import com.cursokotlin.entrenamientosconroom.ui.viewmodel.LoginViewModel
-import com.cursokotlin.entrenamientosconroom.ui.viewmodel.TrainingViewModel
-import org.checkerframework.checker.units.qual.Time
-import java.util.Vector
+import com.cursokotlin.entrenamientosconroom.ui.screenHome.HomeViewModel
+import com.cursokotlin.entrenamientosconroom.ui.screenLogin.LoginViewModel
 
 @Composable
 fun TrainingScreen(
-    modifier: Modifier = Modifier,
     loginViewModel: LoginViewModel,
-    trainingViewModel: TrainingViewModel
+    trainingViewModel: TrainingViewModel,
+    homeViewModel: HomeViewModel
 ) {
-
-    val workoutWithSetsAndExercises by trainingViewModel.workoutWithSets.observeAsState(emptyList())
-
     val age by trainingViewModel.age.observeAsState(initial = 0)
-    val currentAge by trainingViewModel.currentAge.observeAsState("")
+    val currentAge by trainingViewModel.currentAge.observeAsState("30")
 
     val time by trainingViewModel.time.observeAsState(initial = 0)
-    val currentTime by trainingViewModel.currentTime.observeAsState("")
+    val currentTime by trainingViewModel.currentTime.observeAsState("30")
 
     val injuries by trainingViewModel.injure.observeAsState("ninguna")
-    val currentInjuries by trainingViewModel.currentInjuries.observeAsState("")
+    val currentInjuries by trainingViewModel.currentInjuries.observeAsState("ninguna")
 
     val sex by trainingViewModel.sex.observeAsState(0)
     val language by trainingViewModel.language.observeAsState(0)
@@ -114,11 +96,10 @@ fun TrainingScreen(
     val changeColorMSelected by trainingViewModel.changeColorMSelected.observeAsState(true)
     val changeColorFSelected by trainingViewModel.changeColorFSelected.observeAsState(false)
 
-    val isLoading by trainingViewModel.isLoading.observeAsState(false)
-    val sheetState by trainingViewModel.sheetState.observeAsState(false)
+    val isLoading by homeViewModel.isLoading.observeAsState(false)
 
-    val lastUserData by trainingViewModel.lastUserData.observeAsState(
-        UserDataModel(0, 0, 0, listOf(), 0, 0, "", 0)
+    val lastUserData by homeViewModel.lastUserData.observeAsState(
+        UserDataModel(1, 30, 0, listOf(50,11,80), 1, 60, "ninguna", 1)
     )
 
     val currentUserData = UserDataModel(
@@ -141,44 +122,118 @@ fun TrainingScreen(
 
     val textSingOut = "''¿Está seguro que desea cerrar sesión en su cuenta de usuario?''"
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(color = Color(0xFFF3F2F7))
-            .padding(horizontal = 16.dp)
-    ) {
 
-        Log.d("TrainingScreen", "lastUserData : $lastUserData")
-        Log.d("TrainingScreen", "currentUserData: $currentUserData")
-
-        SingOut(trainingViewModel)
-        Spacer(Modifier.height(24.dp))
-
-        Card(
-            modifier = Modifier,
-            elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
+    Column(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .background(color = Color(0xFFF3F2F7))
+                .padding(horizontal = 16.dp)
         ) {
-            Column(Modifier.padding(8.dp)) {
-                Row(
-                    Modifier.padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.AssignmentTurnedIn,
-                        contentDescription = "description",
-                        Modifier
-                            .size(35.dp),
-                        tint = colorResource(id = R.color.primary_icon)
+            LazyColumn {
+                item {
+                    Spacer(Modifier.height(8.dp))
+                    SingOut(trainingViewModel)
+                    Spacer(Modifier.height(24.dp))
+
+                    TargetsCurrent(targets, target, targetsIcon, trainingViewModel)
+                    Spacer(Modifier.height(24.dp))
+
+                    Title(text = "Datos personales")
+                    Spacer(Modifier.height(2.dp))
+                    Card(
+                        modifier = Modifier,
+                        elevation = CardDefaults.cardElevation(8.dp),
+                        colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
+                    ) {
+                        SelectYourSex(
+                            changeColorMSelected,
+                            changeColorFSelected,
+                            trainingViewModel
+                        )
+                        AgeFiled(currentAge, trainingViewModel, age)
+                    }
+                    Spacer(Modifier.height(24.dp))
+
+                    Title(text = "Datos de entrenamiento")
+                    Spacer(Modifier.height(2.dp))
+                    Card(
+                        Modifier,
+                        elevation = CardDefaults.cardElevation(8.dp),
+                        colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
+                    ) {
+                        ConfigMuscles(Modifier.height(60.dp), trainingViewModel)
+                        DifficultTraining(
+                            difficulties,
+                            difficultiesIcon,
+                            difficulty,
+                            trainingViewModel
+                        )
+                        TimeFiled(currentTime, trainingViewModel, time)
+                        InjuriesFiled(currentInjuries, trainingViewModel, injuries)
+                    }
+                    Spacer(Modifier.height(24.dp))
+
+                    SelectLanguage(languages, language, languageIcon, trainingViewModel)
+                    Spacer(Modifier.height(8.dp))
+
+                    Spacer(Modifier.height(24.dp))
+
+                    UpdateTraining(
+                        Modifier,
+                        homeViewModel,
+                        loginViewModel,
+                        isLoading,
+                        currentUserData,
+                        lastUserData
                     )
-                    Text(
-                        text = "Mis objetivos actuales",
-                        Modifier.padding(start = 8.dp),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
+                    Spacer(Modifier.height(8.dp))
                 }
-                SelectDropdownMenu(Modifier.padding(4.dp), targets, targetsIcon, tint = {
+            }
+        }
+    }
+
+    if (singOutDialogState) {
+        SingOutDialog(textSingOut, trainingViewModel, loginViewModel)
+    }
+}
+
+@Composable
+fun TargetsCurrent(
+    targets: List<String>,
+    target: Int,
+    targetsIcon: Int,
+    trainingViewModel: TrainingViewModel
+) {
+    Card(
+        modifier = Modifier,
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
+    ) {
+        Column(Modifier.padding(8.dp)) {
+            Row(
+                Modifier.padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.AssignmentTurnedIn,
+                    contentDescription = "description",
+                    Modifier
+                        .size(35.dp),
+                    tint = colorResource(id = R.color.primary_icon)
+                )
+                Text(
+                    text = "Mis objetivos actuales",
+                    Modifier.padding(start = 8.dp),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            }
+            SelectDropdownMenu(
+                Modifier.padding(4.dp), targets, targetsIcon,
+                shape = { RoundedCornerShape(15.dp) },
+                tint = {
                     when (target) {
                         0 -> Color(0xFF475B90)
                         1 -> Color(0xA4475B90)
@@ -188,43 +243,45 @@ fun TrainingScreen(
                 }, onClickItem = { selectedIndex ->
                     trainingViewModel.onChangeTarget(selectedIndex)
                 })
-            }
-
         }
-        Spacer(Modifier.height(24.dp))
-        Title(text = "Datos personales")
-        Spacer(Modifier.height(2.dp))
+    }
+}
 
-        Card(
-            modifier = Modifier,
-            elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
-        ) {
-            SelectYourSex(changeColorMSelected, changeColorFSelected, trainingViewModel)
-            TextFiledAge(currentAge, trainingViewModel, age)
-            TextFiledTime(currentTime, trainingViewModel, time)
-            TextFiledInjuries(currentInjuries, trainingViewModel, injuries)
-        }
-        Spacer(Modifier.width(8.dp))
-
-        ConfigMuscles(Modifier.height(60.dp), trainingViewModel)
-        Spacer(Modifier.height(24.dp))
-
-
-        Spacer(Modifier.height(24.dp))
-
-        SelectDropdownMenu(Modifier, languages, languageIcon, tint = {
+@Composable
+fun SelectLanguage(
+    languages: List<String>,
+    language: Int,
+    languageIcon: Int,
+    trainingViewModel: TrainingViewModel
+) {
+    SelectDropdownMenu(
+        Modifier,
+        languages,
+        languageIcon,
+        shape = { RoundedCornerShape(15.dp) },
+        tint = {
             when (language) {
                 0 -> Color(0xFF475B90)
                 1 -> Color(0x9E475B90)
                 else -> Color.Black
             }
-        }, onClickItem = { selectedIndex ->
+        },
+        onClickItem = { selectedIndex ->
             trainingViewModel.onChangeLanguage(selectedIndex)
         })
-        Spacer(Modifier.height(8.dp))
+}
 
-        SelectDropdownMenu(Modifier, difficulties, difficultiesIcon, tint = {
+@Composable
+fun DifficultTraining(
+    difficulties: List<String>,
+    difficultiesIcon: Int,
+    difficulty: Int,
+    trainingViewModel: TrainingViewModel
+) {
+    SelectDropdownMenu(
+        Modifier, difficulties, difficultiesIcon,
+        shape = { RoundedCornerShape(0.dp) },
+        tint = {
             when (difficulty) {
                 0 -> Color(0x3B475B90)
                 1 -> Color(0xA4475B90)
@@ -234,28 +291,6 @@ fun TrainingScreen(
         }, onClickItem = { selectedIndex ->
             trainingViewModel.onChangeDifficulty(selectedIndex)
         })
-        Spacer(Modifier.height(24.dp))
-
-        TrainingSpacer(Modifier.height(70.dp), workoutWithSetsAndExercises, trainingViewModel)
-        Spacer(modifier = Modifier.height(24.dp))
-
-        UpdateTraining(
-            Modifier,
-            trainingViewModel,
-            isLoading,
-            currentUserData,
-            lastUserData
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (sheetState) {
-            SheetWorkout(trainingViewModel, workoutWithSetsAndExercises)
-        }
-
-        if (singOutDialogState) {
-            SingOutDialog(textSingOut, trainingViewModel, loginViewModel)
-        }
-    }
 }
 
 @Composable
@@ -301,7 +336,7 @@ fun SelectYourSex(
 }
 
 @Composable
-fun TextFiledInjuries(
+fun InjuriesFiled(
     currentInjuries: String,
     trainingViewModel: TrainingViewModel,
     injuries: String
@@ -324,7 +359,7 @@ fun TextFiledInjuries(
 }
 
 @Composable
-fun TextFiledTime(currentTime: String, trainingViewModel: TrainingViewModel, time: Int) {
+fun TimeFiled(currentTime: String, trainingViewModel: TrainingViewModel, time: Int) {
     SameTextField(
         modifier = Modifier,
         current = currentTime,
@@ -346,7 +381,7 @@ fun TextFiledTime(currentTime: String, trainingViewModel: TrainingViewModel, tim
 }
 
 @Composable
-fun TextFiledAge(currentAge: String, trainingViewModel: TrainingViewModel, age: Int) {
+fun AgeFiled(currentAge: String, trainingViewModel: TrainingViewModel, age: Int) {
     SameTextField(
         modifier = Modifier,
         current = currentAge,
@@ -371,37 +406,60 @@ fun TextFiledAge(currentAge: String, trainingViewModel: TrainingViewModel, age: 
 fun SingOut(trainingViewModel: TrainingViewModel) {
     Card(
         Modifier
-            .clickable {
-                trainingViewModel.openSingOutDialog()
-            }
             .fillMaxWidth(),
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF485C91)),
+        shape = RoundedCornerShape(15.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.fillMaxWidth()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(R.drawable.user), contentDescription = "User",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .padding(8.dp)
+                )
+                Column {
+                    Text(
+                        text = "Escribe tu nombre", Modifier
+                            .padding(vertical = 4.dp), color = Color.Black, fontSize = 20.sp
+                    )
+                    Text(
+                        text = "Reni", Modifier
+                            .padding(vertical = 4.dp), color = Color.Black, fontSize = 20.sp
+                    )
+                }
+                Text(
+                    text = "Sing Out", Modifier
+                        .padding(start = 40.dp)
+                        .clickable {
+                            trainingViewModel.openSingOutDialog()
+                        }, color = Color.Red, fontSize = 20.sp
+                )
+            }
             HorizontalDivider(
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 10.dp),
-                thickness = 0.5.dp,
-                color = Color(0xFFA2A2A5)
+                Modifier.fillMaxWidth(), thickness = 4.dp, color = Color(0xFFEFEEF3)
             )
-            Text(
-                text = "Sing Out",
-                Modifier.padding(vertical = 4.dp),
-                color = Color.White,
-                fontSize = 20.sp
-            )
-            HorizontalDivider(
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 10.dp),
-                thickness = 0.5.dp,
-                color = Color(0xFFA2A2A5)
-            )
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Filled.CurrencyExchange, contentDescription = "User",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(8.dp)
+                )
+                Text(
+                    text = "Suscripción",
+                    Modifier.padding(vertical = 4.dp),
+                    color = Color.Black,
+                    fontSize = 20.sp
+                )
+                Text(
+                    text = "none",
+                    Modifier.padding(start = 190.dp, end = 2.dp),
+                    color = Color.Black,
+                    fontSize = 20.sp
+                )
+            }
         }
     }
 }
@@ -413,10 +471,11 @@ fun ConfigMuscles(modifier: Modifier, trainingViewModel: TrainingViewModel) {
 
     Card(
         modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(0.dp),
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
     ) {
-        LazyColumn(Modifier.fillMaxWidth()) {
+        LazyRow(Modifier.fillMaxWidth()) {
             itemsIndexed(muscles) { index, item ->
                 Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
@@ -496,6 +555,7 @@ fun SameTextField(
                 tint = tint()
             )
         },
+        shape = RoundedCornerShape(0.dp),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = colorResource(id = R.color.selected),
             unfocusedContainerColor = Color(0xFFFBFBFB)
@@ -544,7 +604,8 @@ fun SelectSex(
 @Composable
 fun UpdateTraining(
     modifier: Modifier,
-    trainingViewModel: TrainingViewModel,
+    homeViewModel: HomeViewModel,
+    loginViewModel: LoginViewModel,
     isLoading: Boolean,
     currentUserData: UserDataModel,
     lastUserData: UserDataModel
@@ -559,7 +620,10 @@ fun UpdateTraining(
         colors = CardDefaults.cardColors(Color(0xFF485C91)),
         onClick = {
             if (currentUserData != lastUserData) {
-                trainingViewModel.loadWorkout(currentUserData)
+                Log.d("TrainingScreen", "lastUserData : $lastUserData")
+                Log.d("TrainingScreen", "currentUserData: $currentUserData")
+                homeViewModel.loadWorkout(currentUserData)
+                if (isLoading == false) loginViewModel.goScreenHome()
             }
         },
         enabled = enable
@@ -612,6 +676,7 @@ fun SelectDropdownMenu(
     modifier: Modifier,
     options: List<String>,
     icon: Int,
+    shape: () -> Shape,
     tint: () -> Color,
     onClickItem: (Int) -> Unit,
 ) {
@@ -626,9 +691,9 @@ fun SelectDropdownMenu(
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth()
                 .clickable { expanded = true },
-            shape = RoundedCornerShape(20.dp),
+            shape = shape(),
             colors = CardDefaults.cardColors(Color(0xFFFDFDFD)),
-            elevation = CardDefaults.cardElevation(8.dp)
+            elevation = CardDefaults.cardElevation(2.dp)
         ) {
             Row(
                 modifier = modifier.padding(4.dp), horizontalArrangement = Arrangement.Center
@@ -692,166 +757,6 @@ fun SelectDropdownMenu(
 }
 
 @Composable
-fun TrainingSpacer(
-    modifier: Modifier,
-    workoutWithSetsAndExercises: List<WorkoutWithSetsAndExercises>,
-    trainingViewModel: TrainingViewModel
-) {
-    Card(
-        modifier
-            .fillMaxWidth()
-            .clickable { trainingViewModel.onChangeSheetState() },
-        elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
-    ) {
-        LazyColumn(contentPadding = PaddingValues(8.dp)) {
-            items(workoutWithSetsAndExercises, key = { it.workout.workoutId }) { workoutWithSets ->
-                HeaderWorkout(workoutWithSets)
-                Spacer(modifier = Modifier.height(24.dp))
-                workoutWithSets.sets.forEach { setWithExercise ->
-                    HeaderSet(setWithExercise)
-                    Spacer(modifier = Modifier.size(8.dp))
-                    setWithExercise.exercises.forEach { exercise ->
-                        Exercise(exercise)
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun HeaderWorkout(workoutWithSets: WorkoutWithSetsAndExercises) {
-    Text(
-        color = Color(0xFF485C91),
-        fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        text = "Entrenamiento: ${workoutWithSets.workout.name} "
-    )
-    Text(
-        color = Color(0xFF424657),
-        fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        textAlign = TextAlign.End,
-        text = workoutWithSets.workout.coach_explanation
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-    Divider(
-        thickness = 1.dp,
-        color = Color(0xFF485C91),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-    )
-}
-
-@Composable
-fun HeaderSet(setWithExercise: SetWithExercise) {
-    Text(
-        color = Color(0xFF282828),
-        fontWeight = FontWeight.Bold,
-        fontSize = 20.sp,
-        text = "Set No.${setWithExercise.set.order_set_id + 1}"
-    )
-    Text(
-        color = Color.Gray,
-        fontWeight = FontWeight.Bold,
-        text = "${setWithExercise.set.rounds} Rounds"
-    )
-}
-
-@Composable
-fun Exercise(exercise: Exercise) {
-    Text(
-        color = Color.Black,
-        fontWeight = FontWeight.Bold,
-        text = "Exercise: ${exercise.order_exercise_id + 1} "
-    )
-    Text(
-        color = Color.Black,
-        text = "Ejercicios para: ${getMuscleName(exercise.muscle_id)}"
-    )
-    Text(color = Color.Black, text = exercise.name)
-    Text(color = Color.Black, text = "Reps ${exercise.reps} ")
-    Text(
-        color = Color.Black,
-        text = "Movimiento de: ${getExerciseName(exercise.movement_id)}"
-    )
-    Spacer(modifier = Modifier.height(8.dp))
-}
-
-fun getMuscleName(id: Int): String {
-    return when (id) {
-        50 -> "Pecho"
-        31 -> "Tríceps"
-        90 -> "Hombros"
-        10 -> "Espalda"
-        30 -> "Bíceps"
-        60 -> "Antebrazos"
-        20 -> "Trapecios"
-        11 -> "Cuádriceps"
-        70 -> "Glúteos"
-        40 -> "Isquiotibiales"
-        21 -> "Pantorrillas"
-        51 -> "Aductores"
-        61 -> "Abductores"
-        80 -> "Abdomen"
-        41 -> "Espalda baja"
-        else -> "Ejercicio desconocido"
-    }
-}
-
-fun getExerciseName(id: Int): String {
-    return when (id) {
-        803 -> "Flexión del abdomen superior"
-        116 -> "Prensa"
-        902 -> "Elevación frontal de hombros"
-        200 -> "Encogimientos de trapecio"
-        115 -> "Extensión de rodilla"
-        102 -> "Jalón en vertical"
-        805 -> "Flexión lateral"
-        501 -> "Empuje recto"
-        110 -> "Subida al cajón"
-        113 -> "Levantamiento de cadera"
-        315 -> "Fondos"
-        301 -> "Curls de martillo o invertido"
-        504 -> "Aperturas"
-        802 -> "Flexión abdominal completa"
-        111 -> "Curl de isquiotibiales"
-        103 -> "Extensión de codo en plano bajo"
-        311 -> "Extensión de codo sobre la cabeza"
-        502 -> "Empuje inclinado"
-        505 -> "Pullover"
-        314 -> "Empuje recto con agarre cerrado"
-        210 -> "Elevación de talones"
-        610 -> "Abducción de cadera"
-        410 -> "Extensión de espalda"
-        201 -> "Remo vertical"
-        101 -> "Jalón en horizontal"
-        117 -> "Zancada"
-        801 -> "Estabilidad del core"
-        313 -> "Extensión de codo hacia el frente"
-        806 -> "Flexión de abdomen inferior"
-        118 -> "Zancada estática"
-        300 -> "Curl supinado"
-        804 -> "Rotación de tronco"
-        114 -> "Extensión de cadera"
-        119 -> "Sentadillas"
-        510 -> "Aducción de cadera"
-        903 -> "Elevación lateral de hombros"
-        901 -> "Elevación de deltoides posterior"
-        904 -> "Empuje vertical"
-        503 -> "Empuje declinado"
-        112 -> "Bisagra de cadera"
-        302 -> "Curls de aislamiento"
-        600 -> "Curl de muñeca"
-        312 -> "Extensión de codo en plano bajo"
-        else -> "Ejercicio desconocido"
-    }
-}
-
-@Composable
 fun SingOutDialog(
     textError: String,
     trainingViewModel: TrainingViewModel,
@@ -864,6 +769,7 @@ fun SingOutDialog(
                 onClick = {
                     trainingViewModel.closeSingOutDialog()
                     loginViewModel.signOut()
+                    loginViewModel.goScreenLogin()
                 },
                 shape = RoundedCornerShape(25),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF04527C)),
@@ -908,15 +814,6 @@ fun SingOutDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SheetWorkout(
-    trainingViewModel: TrainingViewModel,
-    workoutWithSetsAndExercises: List<WorkoutWithSetsAndExercises>
-) {
-    ModalBottomSheet(onDismissRequest = { trainingViewModel.onChangeSheetState() }) {
-        TrainingSpacer(Modifier.weight(0.9f), workoutWithSetsAndExercises, trainingViewModel)
-    }
-}
+
 
 
