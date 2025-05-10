@@ -29,23 +29,38 @@ class HomeViewModel @Inject constructor(
     private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> get() = _isLoading
 
+    private val _stateDialog = MutableLiveData<Boolean>(false)
+    val stateDialog: LiveData<Boolean> get() = _stateDialog
+
+    private val _numberOfSets = MutableLiveData<Int>(0)
+    val numberOfSets: LiveData<Int> get() = _numberOfSets
+
     fun loadWorkout(currentUserData: UserDataModel) {
-        _isLoading.value = true
         // Paso 1: Llama al UseCase que hace POST a la API y guarda en Room
         viewModelScope.launch {
+            _isLoading.value = true
             trainingUseCase(currentUserData)
             // Paso 2: Recupera todos los workouts simples (sin relaciones)
             val allWorkouts = workoutDao.getAllWorkouts()
             // Paso 3: Recorre cada workout y obtiene su estructura completa (sets + ejercicios)
             val detailedWorkouts = mutableListOf<WorkoutWithSetsAndExercises>()
             for (workout in allWorkouts) {
-                workoutDao.getWorkoutWithSetsAndExercises(workout.workoutId.toInt())?.let {
-                    detailedWorkouts += it
+                workoutDao.getWorkoutWithSetsAndExercises(workout.workoutId.toInt())?.let {otherWorkout ->
+                    detailedWorkouts += otherWorkout
                 }
             }
             _workoutWithSets.value = detailedWorkouts
+            _lastUserData.value = currentUserData
             _isLoading.value = false
         }
-        _lastUserData.value = currentUserData
     }
+
+    fun updateNumberOfSets(newNumberOfSets: Int){
+        _numberOfSets.value = newNumberOfSets
+    }
+
+    fun changeStateDialog(){
+        _stateDialog.value = _stateDialog.value != true
+    }
+
 }

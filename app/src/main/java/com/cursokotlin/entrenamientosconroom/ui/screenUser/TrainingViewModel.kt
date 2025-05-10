@@ -4,13 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutDao
-import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutWithSetsAndExercises
-import com.cursokotlin.entrenamientosconroom.data.networkAPI.UserDataModel
-import com.cursokotlin.entrenamientosconroom.dominio.TrainingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel

@@ -1,31 +1,48 @@
 package com.cursokotlin.entrenamientosconroom.ui.screenHome
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.QuestionMark
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import com.cursokotlin.entrenamientosconroom.R
 import com.cursokotlin.entrenamientosconroom.data.bd.Exercise
 import com.cursokotlin.entrenamientosconroom.data.bd.SetWithExercise
 import com.cursokotlin.entrenamientosconroom.data.bd.WorkoutWithSetsAndExercises
@@ -35,43 +52,284 @@ import com.cursokotlin.entrenamientosconroom.ui.screenUser.TrainingViewModel
 fun HomeScreen(trainingViewModel: TrainingViewModel, homeViewModel: HomeViewModel) {
 
     val workoutWithSetsAndExercises by homeViewModel.workoutWithSets.observeAsState(emptyList())
-    val sheetState by trainingViewModel.sheetState.observeAsState(false)
 
-        Column(Modifier.fillMaxSize()) {
+    val sheetState by trainingViewModel.sheetState.observeAsState(false)
+    val time by trainingViewModel.time.observeAsState(initial = 0)
+    val numberOfSets by homeViewModel.numberOfSets.observeAsState(initial = 0)
+    val dialog by homeViewModel.stateDialog.observeAsState(false)
+    val warmUp = "El calentamiento es importante porque prepara el cuerpo física y mentalmente " +
+            "para el ejercicio. Aumenta la temperatura corporal, mejora la circulación sanguínea, activa los " +
+            "músculos y articulaciones, y reduce el riesgo de lesiones. Además, mejora el rendimiento y " +
+            "ayuda a tener una transición más segura hacia el esfuerzo físico intenso."
+
+    Column(Modifier.fillMaxWidth()) {
+        Card(
+            Modifier
+                .weight(0.95f)
+                .fillMaxWidth()
+                .clickable { },
+            elevation = CardDefaults.cardElevation(8.dp),
+            shape = RoundedCornerShape(0.dp),
+            colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
+        ) {
+            Column(Modifier.padding(horizontal = 16.dp)) {
+                Spacer(modifier = Modifier.height(16.dp))
+                HeaderWorkout(time, numberOfSets, homeViewModel, workoutWithSetsAndExercises)
+                Spacer(modifier = Modifier.height(16.dp))
+                ButtonsField(trainingViewModel)
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                thickness = 1.dp,
+                color = colorResource(R.color.divider)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+
             TrainingSpacer(
                 workoutWithSetsAndExercises,
-                trainingViewModel
+                homeViewModel
             )
-
-            if (sheetState) {
-                SheetWorkout(trainingViewModel, workoutWithSetsAndExercises)
-            }
         }
+        HorizontalDivider(
+            modifier = Modifier
+                .weight(0.05f)
+                .fillMaxWidth()
+                .height(10.dp),
+            thickness = 40.dp,
+            color = colorResource(R.color.divider)
+        )
+        if (dialog) {
+            InfoDialog(warmUp, homeViewModel)
+        }
+
+        if (sheetState) {
+            SheetWorkout(trainingViewModel)
+        }
+    }
 }
 
 @Composable
 fun TrainingSpacer(
     workoutWithSetsAndExercises: List<WorkoutWithSetsAndExercises>,
-    trainingViewModel: TrainingViewModel
+    homeViewModel: HomeViewModel
+) {
+    LazyColumn(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+        items(
+            workoutWithSetsAndExercises,
+            key = { it.workout.workoutId }) { workoutWithSets ->
+            workoutWithSets.sets.forEach { setWithExercise ->
+                HeaderSet(setWithExercise, homeViewModel)
+                Spacer(modifier = Modifier.size(8.dp))
+                setWithExercise.exercises.forEach { exercise ->
+                    Exercise(exercise)
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+
+}
+
+
+@Composable
+fun ButtonsField(trainingViewModel: TrainingViewModel) {
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ButtonLong(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {},
+            text = "Empezar"
+        )
+        Spacer(Modifier.size(10.dp))
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            ButtonLong(
+                modifier = Modifier
+                    .weight(0.76f)
+                    .clickable { trainingViewModel.onChangeSheetState() },
+                text = "Personalizar"
+            )
+            Spacer(Modifier.size(8.dp))
+
+            ButtonShort(
+                modifier = Modifier
+                    .weight(0.12f)
+                    .align(Alignment.CenterVertically),
+                image = Icons.Filled.BookmarkBorder,
+                modifierImage = Modifier
+                    .padding(vertical = 12.dp)
+                    .size(25.dp)
+            )
+            Spacer(Modifier.size(8.dp))
+
+            ButtonShort(
+                modifier = Modifier
+                    .weight(0.12f)
+                    .align(Alignment.CenterVertically),
+                image = Icons.Filled.Add,
+                modifierImage = Modifier
+                    .padding(vertical = 12.dp)
+                    .size(25.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun ButtonShort(
+    modifier: Modifier,
+    image: ImageVector,
+    modifierImage: Modifier
 ) {
     Card(
-        Modifier
-            .fillMaxSize()
-            .clickable { trainingViewModel.onChangeSheetState() },
-        elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = colorResource(R.color.blue_button),
+            contentColor = Color.White
+        )
     ) {
-        LazyColumn(contentPadding = PaddingValues(8.dp)) {
-            items(workoutWithSetsAndExercises, key = { it.workout.workoutId }) { workoutWithSets ->
-                HeaderWorkout(workoutWithSets)
-                Spacer(modifier = Modifier.height(24.dp))
-                workoutWithSets.sets.forEach { setWithExercise ->
-                    HeaderSet(setWithExercise)
-                    Spacer(modifier = Modifier.size(8.dp))
-                    setWithExercise.exercises.forEach { exercise ->
-                        Exercise(exercise)
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
+        Image(
+            imageVector = image,
+            contentDescription = "Bookmark",
+            modifier = modifierImage.align(Alignment.CenterHorizontally),
+            alignment = Alignment.Center,
+            colorFilter = ColorFilter.tint(
+                Color.White
+            )
+        )
+    }
+}
+
+@Composable
+fun ButtonLong(modifier: Modifier, text: String) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = colorResource(R.color.blue_button),
+            contentColor = Color.White
+        )
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier
+                .padding(vertical = 14.dp)
+                .align(Alignment.CenterHorizontally),
+            fontSize = 20.sp,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun HeaderWorkout(
+    time: Int,
+    numberOfSets: Int,
+    homeViewModel: HomeViewModel,
+    workoutWithSets: List<WorkoutWithSetsAndExercises>
+) {
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                color = colorResource(R.color.title),
+                fontWeight = FontWeight.Bold,
+                fontSize = 30.sp,
+                text = "Próximo entrenamiento"
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = "...",
+                modifier = Modifier.align(Alignment.CenterVertically),
+                color = colorResource(R.color.title),
+                fontSize = 30.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+            )
+        }
+        Spacer(Modifier.size(4.dp))
+
+        workoutWithSets.forEach { workoutWithSets ->
+            val original = workoutWithSets.workout.name
+            val words = original.split(Regex("[^\\p{L}]+"))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                words.forEach { workouts ->
+                    Text(
+                        text = ".",
+                        Modifier.padding(bottom = 20.dp, end = 4.dp),
+                        fontSize = 45.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        textAlign = TextAlign.Center,
+                        color = Color.Blue
+                    )
+                    Text(
+                        color = colorResource(R.color.title),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
+                        text = workouts
+                    )
+                    Spacer(Modifier.size(8.dp))
+                }
+            }
+        }
+        Spacer(Modifier.size(4.dp))
+
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            ItemHeader(
+                Modifier
+                    .weight(0.25f),
+                icon = R.color.background_icon,
+                description = "time",
+                image = Icons.Filled.Watch,
+                text = " $time min"
+            )
+            ItemHeader(
+                Modifier
+                    .weight(0.37f),
+                icon = R.color.background_icon,
+                description = "Sets",
+                image = Icons.Filled.FitnessCenter,
+                text = " $numberOfSets ejercicios"
+            )
+            Row(
+                Modifier
+                    .weight(0.38f)
+                    .fillMaxWidth()
+                    .clickable { homeViewModel.changeStateDialog() },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Calentamiento",
+                    color = Color.Blue,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 19.5.sp,
+                )
+                Spacer(Modifier.size(2.dp))
+                Card(
+                    shape = RoundedCornerShape(100.dp),
+                    colors = CardDefaults.cardColors(Color.White),
+                    border = BorderStroke(width = 2.dp, brush = SolidColor(Color.Blue))
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.QuestionMark,
+                        contentDescription = "Sets",
+                        Modifier
+                            .size(20.dp)
+                            .padding(3.dp),
+                        tint = Color.Blue
+                    )
                 }
             }
         }
@@ -79,45 +337,46 @@ fun TrainingSpacer(
 }
 
 @Composable
-fun HeaderWorkout(workoutWithSets: WorkoutWithSetsAndExercises) {
-    Text(
-        color = Color(0xFF485C91),
-        fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        text = "Próximo entrenamiento"
-    )
-    Text(
-        color = Color(0xFF485C91),
-        fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        text = workoutWithSets.workout.name
-    )
-
-    Text(
-        color = Color(0xFF424657),
-        fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
-        textAlign = TextAlign.End,
-        text = workoutWithSets.workout.coach_explanation
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-    HorizontalDivider(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        thickness = 1.dp,
-        color = Color(0xFF485C91)
-    )
+fun ItemHeader(
+    modifier: Modifier,
+    icon: Int,
+    description: String,
+    image: ImageVector,
+    text: String
+) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Card(
+            colors = CardDefaults.cardColors(colorResource(icon)),
+            shape = RoundedCornerShape(100.dp)
+        ) {
+            Icon(
+                imageVector = image,
+                contentDescription = description,
+                Modifier
+                    .size(25.dp)
+                    .padding(2.dp),
+                tint = Color.White
+            )
+        }
+        Text(
+            text = text,
+            color = Color(0xFF282828),
+            fontWeight = FontWeight.Bold,
+            fontSize = 19.5.sp
+        )
+    }
 }
 
 @Composable
-fun HeaderSet(setWithExercise: SetWithExercise) {
+fun HeaderSet(setWithExercise: SetWithExercise, homeViewModel: HomeViewModel) {
+
     Text(
         color = Color(0xFF282828),
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
         text = "Set No.${setWithExercise.set.order_set_id + 1}"
     )
+    homeViewModel.updateNumberOfSets(setWithExercise.set.order_set_id + 1)
     Text(
         color = Color.Gray,
         fontWeight = FontWeight.Bold,
@@ -215,13 +474,27 @@ fun getExerciseName(id: Int): String {
     }
 }
 
+@Composable
+fun InfoDialog(text: String, homeViewModel: HomeViewModel) {
+
+    Dialog(onDismissRequest = { homeViewModel.changeStateDialog() }) {
+        Card(
+            Modifier
+                .fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Text(text = text, Modifier.padding(24.dp))
+        }
+    }
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SheetWorkout(
-    trainingViewModel: TrainingViewModel,
-    workoutWithSetsAndExercises: List<WorkoutWithSetsAndExercises>
+    homeViewModel: TrainingViewModel,
 ) {
-    ModalBottomSheet(onDismissRequest = { trainingViewModel.onChangeSheetState() }) {
-        TrainingSpacer(workoutWithSetsAndExercises, trainingViewModel)
+    ModalBottomSheet(onDismissRequest = { homeViewModel.onChangeSheetState() }) {
+
     }
 }

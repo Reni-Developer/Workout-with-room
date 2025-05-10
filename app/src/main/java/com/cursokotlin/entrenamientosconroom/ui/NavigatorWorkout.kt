@@ -42,6 +42,7 @@ fun NavigatorWorkout(
 ) {
 
     val navigatorController = rememberNavController()
+
     val destination by loginViewModel.navigator.observeAsState(initial = Navigator.Screen1)
 
     LaunchedEffect(destination) {
@@ -60,24 +61,6 @@ fun NavigatorWorkout(
 
             is Navigator.Screen3 -> {
                 navigatorController.navigate(Routes.Screen3.route) {
-                    popUpTo(0) { inclusive = true }
-                }
-            }
-
-            is Navigator.Screen4 -> {
-                navigatorController.navigate(Routes.Screen4.route) {
-                    popUpTo(0) { inclusive = true }
-                }
-            }
-
-            is Navigator.Screen5 -> {
-                navigatorController.navigate(Routes.Screen5.route) {
-                    popUpTo(0) { inclusive = true }
-                }
-            }
-
-            is Navigator.Screen6 -> {
-                navigatorController.navigate(Routes.Screen6.route) {
                     popUpTo(0) { inclusive = true }
                 }
             }
@@ -117,18 +100,12 @@ sealed class Routes(val route: String) {
     object Screen1 : Routes("Screen1")
     object Screen2 : Routes("Screen2")
     object Screen3 : Routes("Screen3")
-    object Screen4 : Routes("Screen4")
-    object Screen5 : Routes("Screen5")
-    object Screen6 : Routes("Screen6")
 }
 
 sealed class Navigator {
     object Screen1 : Navigator()
     object Screen2 : Navigator()
     object Screen3 : Navigator()
-    object Screen4 : Navigator()
-    object Screen5 : Navigator()
-    object Screen6 : Navigator()
 }
 
 @Composable
@@ -137,7 +114,7 @@ fun NavigatorBar(loginViewModel: LoginViewModel) {
     val destination by loginViewModel.navigator.observeAsState(initial = Navigator.Screen1)
 
     Card(
-        Modifier.fillMaxWidth(),
+        Modifier.fillMaxWidth().padding(bottom = 8.dp),
         shape = RoundedCornerShape(0.dp),
         colors = CardDefaults.cardColors(colorResource(id = R.color.unselected))
     ) {
@@ -160,9 +137,8 @@ fun NavigatorBar(loginViewModel: LoginViewModel) {
                 Modifier
                     .weight(1f)
                     .size(36.dp)
-                    .clickable { loginViewModel.goScreenUser() },
-                tint = if (destination == Navigator.Screen4) Color.Blue
-                 else  Color.Black
+                    .clickable {  },
+                tint = Color.Black
             )
 
             ItemBarNav(
@@ -171,9 +147,8 @@ fun NavigatorBar(loginViewModel: LoginViewModel) {
                 Modifier
                     .weight(1f)
                     .size(60.dp)
-                    .clickable { loginViewModel.goScreenUser() },
-                tint = if (destination == Navigator.Screen5)
-                    Color.Blue else Color.Black
+                    .clickable {  },
+                tint = Color.Black
             )
 
             ItemBarNav(
@@ -182,9 +157,8 @@ fun NavigatorBar(loginViewModel: LoginViewModel) {
                 Modifier
                     .weight(1f)
                     .size(40.dp)
-                    .clickable { loginViewModel.goScreenUser() },
-                tint = if (destination == Navigator.Screen6) Color.Blue
-                else Color.Black
+                    .clickable {  },
+                tint = Color.Black
             )
 
             ItemBarNav(

@@ -152,6 +152,7 @@ fun TrainingScreen(
                             changeColorFSelected,
                             trainingViewModel
                         )
+                        DividerObject()
                         AgeFiled(currentAge, trainingViewModel, age)
                     }
                     Spacer(Modifier.height(24.dp))
@@ -164,13 +165,11 @@ fun TrainingScreen(
                         colors = CardDefaults.cardColors(Color(0xFFFBFBFB))
                     ) {
                         ConfigMuscles(Modifier.height(60.dp), trainingViewModel)
-                        DifficultTraining(
-                            difficulties,
-                            difficultiesIcon,
-                            difficulty,
-                            trainingViewModel
-                        )
+                        DividerObject()
+                        DifficultTraining(difficulties, difficultiesIcon, difficulty, trainingViewModel)
+                        DividerObject()
                         TimeFiled(currentTime, trainingViewModel, time)
+                        DividerObject()
                         InjuriesFiled(currentInjuries, trainingViewModel, injuries)
                     }
                     Spacer(Modifier.height(24.dp))
@@ -558,7 +557,9 @@ fun SameTextField(
         shape = RoundedCornerShape(0.dp),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = colorResource(id = R.color.selected),
-            unfocusedContainerColor = Color(0xFFFBFBFB)
+            unfocusedContainerColor = Color(0xFFFBFBFB),
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
         )
     )
 }
@@ -681,9 +682,7 @@ fun SelectDropdownMenu(
     onClickItem: (Int) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
-//    val options = options
     var selected by remember { mutableStateOf(options[0]) }
-    val selectedIndex = options.indexOf(selected)
 
     Column(modifier = modifier) {
         Card(
@@ -724,14 +723,11 @@ fun SelectDropdownMenu(
             onDismissRequest = { expanded = false },
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 8.dp),
+            containerColor = colorResource(R.color.unselected)
         ) {
+            DividerObject()
             options.forEach {
-                Divider(
-                    thickness = 0.5.dp,
-                    color = Color(0xFF868686),
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
                 DropdownMenuItem(
                     text = { Text(text = it, fontSize = 16.sp) },
                     onClick = {
@@ -746,15 +742,19 @@ fun SelectDropdownMenu(
                         textColor = Color(color = 0xFF545454),
                     ), contentPadding = PaddingValues(horizontal = 16.dp)
                 )
-                Divider(
-                    thickness = 0.5.dp,
-                    color = Color(0xFF868686),
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                DividerObject()
             }
         }
     }
 }
+
+@Composable
+fun DividerObject() {
+    Divider(
+        thickness = 0.7.dp,
+        color = colorResource(R.color.divider),
+        modifier = Modifier.padding(horizontal = 8.dp)
+    )}
 
 @Composable
 fun SingOutDialog(

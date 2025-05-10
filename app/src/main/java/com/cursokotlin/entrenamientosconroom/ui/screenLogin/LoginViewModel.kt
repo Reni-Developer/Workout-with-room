@@ -192,6 +192,7 @@ class LoginViewModel @Inject constructor(
 
     fun goScreenUser() {
         _navigator.value = Navigator.Screen2
+        Log.d("LoginViewModel", "Navegación hacia user exitosa.")
     }
 
     fun goScreenLogin() {
@@ -200,26 +201,22 @@ class LoginViewModel @Inject constructor(
     }
 
     fun goScreenHome() {
-        try {
             _navigator.value = Navigator.Screen3
-            Log.d("LoginViewModel", "Navegación hacia home.")
-        }catch (e: Exception){
-            Log.e("LoginViewModel", "No hay pantalla aun :${e}")
-        }
+            Log.d("LoginViewModel", "Navegación hacia home exitosa.")
     }
 
     fun goScreenNote() {
-        _navigator.value = Navigator.Screen4
+        _navigator.value = Navigator.Screen2
         Log.d("LoginViewModel", "Navegación hacia note.")
     }
 
     fun goScreenHead() {
-        _navigator.value = Navigator.Screen5
+        _navigator.value = Navigator.Screen2
         Log.d("LoginViewModel", "Navegación hacia head.")
     }
 
     fun goScreenCalendar() {
-        _navigator.value = Navigator.Screen6
+        _navigator.value = Navigator.Screen2
         Log.d("LoginViewModel", "Navegación hacia calendar.")
     }
 
